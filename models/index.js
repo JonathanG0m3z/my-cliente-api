@@ -31,7 +31,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.products = require('./productModel.js')(sequelize, DataTypes);
+db.users = require('./productModel.js')(sequelize, DataTypes);
 
 db.sequelize.sync({ force: true })
 .then(() => {
@@ -40,3 +40,5 @@ db.sequelize.sync({ force: true })
 .catch(err =>{
     console.log("Error: "+err);
 })
+
+module.exports = db;
