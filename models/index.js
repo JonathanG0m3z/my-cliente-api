@@ -31,7 +31,12 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.users = require('./productModel.js')(sequelize, DataTypes);
+db.users = require('./userModel.js')(sequelize, DataTypes);
+db.accounts = require('./accountModel.js')(sequelize, DataTypes);
+db.clients = require('./clientModel.js')(sequelize, DataTypes);
+db.prices = require('./priceModel.js')(sequelize, DataTypes);
+db.sales = require('./saleModel.js')(sequelize, DataTypes);
+db.services = require('./serviceModel.js')(sequelize, DataTypes);
 
 db.sequelize.sync({ force: true })
 .then(() => {

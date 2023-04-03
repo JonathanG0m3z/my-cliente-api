@@ -9,4 +9,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
           },
     });
+
+    Price.associate = models => {
+        Price.belongsTo(models.service)
+    }
 };
