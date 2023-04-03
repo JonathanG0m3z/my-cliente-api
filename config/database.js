@@ -1,5 +1,6 @@
 const dbConfig = require('./dbConfig');
-const {Sequelize, DataTypes} = require('sequelize');
+const { Sequelize } = require('sequelize');
+const Usermodel = require('../models/userModel');
 
 const sequelize = new Sequelize(
     dbConfig.DB,
@@ -7,14 +8,6 @@ const sequelize = new Sequelize(
     dbConfig.PASSWORD, {
         host: dbConfig.HOST,
         dialect: dbConfig.dialect,
-        operatorsAliases: false,
-
-        pool: {
-            max: dbConfig.pool.max,
-            min: dbConfig.pool.min,
-            acquire: dbConfig.pool.acquire,
-            idle: dbConfig.pool.idle,
-        }
     }
 );
 
@@ -31,7 +24,7 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.User = require('../models/userModel.js')(sequelize, Sequelize);
+db.User = Usermodel(sequelize, Sequelize);
 db.accounts = require('../models/accountModel.js')(sequelize, Sequelize);
 db.clients = require('../models/clientModel.js')(sequelize, Sequelize);
 db.prices = require('../models/priceModel.js')(sequelize, Sequelize);
