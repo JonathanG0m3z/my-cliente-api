@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
 
 const app = express();
 
@@ -11,13 +12,13 @@ const corOptions = {
 
 //middleware
 app.use(cors(corOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true}))
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(morgan('dev'));
 
-app.get('/', (req, res) => {
-    res.json({message: "Hello world"})
-});
+//routers
+const router = require('./routes/userRouter');
+app.use('/users', router);
 
 //port
 const PORT = process.env.PORT || 3001;

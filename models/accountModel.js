@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
           },
           profiles: {
-            type: DataTypes.integer,
+            type: DataTypes.INTEGER,
             allowNull: false,
           },
     });

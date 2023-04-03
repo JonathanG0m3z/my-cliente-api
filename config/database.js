@@ -1,4 +1,4 @@
-const dbConfig = require('@config/dbConfig.js');
+const dbConfig = require('./dbConfig');
 const {Sequelize, DataTypes} = require('sequelize');
 
 const sequelize = new Sequelize(
@@ -31,12 +31,12 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.users = require('./userModel.js')(sequelize, DataTypes);
-db.accounts = require('./accountModel.js')(sequelize, DataTypes);
-db.clients = require('./clientModel.js')(sequelize, DataTypes);
-db.prices = require('./priceModel.js')(sequelize, DataTypes);
-db.sales = require('./saleModel.js')(sequelize, DataTypes);
-db.services = require('./serviceModel.js')(sequelize, DataTypes);
+db.User = require('../models/userModel.js')(sequelize, Sequelize);
+db.accounts = require('../models/accountModel.js')(sequelize, Sequelize);
+db.clients = require('../models/clientModel.js')(sequelize, Sequelize);
+db.prices = require('../models/priceModel.js')(sequelize, Sequelize);
+db.sales = require('../models/saleModel.js')(sequelize, Sequelize);
+db.services = require('../models/serviceModel.js')(sequelize, Sequelize);
 
 db.sequelize.sync({ force: true })
 .then(() => {

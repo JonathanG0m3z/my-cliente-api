@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
           },
           price: {
-            type: DataTypes.integer,
+            type: DataTypes.INTEGER,
             allowNull: false,
           },
           expiration: {

@@ -9,4 +9,8 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
           },
     });
+
+    Service.associate = models => {
+        Service.hasMany(models.price)
+    }
 };
