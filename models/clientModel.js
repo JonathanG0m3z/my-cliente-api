@@ -17,5 +17,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
           },
+          userId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+          },
+    },
+    {
+      timestamps: false,
     });
+    return Client;
 };

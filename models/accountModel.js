@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
         id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
+            autoIncrement:true,
           },
           email: {
             type: DataTypes.STRING,
@@ -20,5 +21,17 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
           },
+          serviceId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+          },
+          userId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+          },
+    },
+    {
+      timestamps: false,
     });
+    return Account;
 };

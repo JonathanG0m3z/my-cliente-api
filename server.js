@@ -17,8 +17,10 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(morgan('dev'));
 
 //routers
-const router = require('./routes/userRouter');
-app.use('/users', router);
+const userRouter = require('./routes/userRouter');
+app.use('/users', userRouter);
+const priceRouter = require('./routes/priceRouter');
+app.use('/prices', priceRouter);
 
 //port
 const PORT = process.env.PORT || 3001;
