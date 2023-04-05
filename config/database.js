@@ -1,6 +1,6 @@
 const dbConfig = require('./dbConfig');
 const { Sequelize } = require('sequelize');
-const Usermodel = require('../models/userModel');
+const relations = require('./dbRelationship');
 
 const sequelize = new Sequelize(
     dbConfig.DB,
@@ -24,17 +24,15 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.User = Usermodel(sequelize, Sequelize);
-db.accounts = require('../models/accountModel.js')(sequelize, Sequelize);
-db.clients = require('../models/clientModel.js')(sequelize, Sequelize);
+db.User = require('../models/userModel.js')(sequelize, Sequelize);
+db.Account = require('../models/accountModel.js')(sequelize, Sequelize);
+db.Client = require('../models/clientModel.js')(sequelize, Sequelize);
 db.Price = require('../models/priceModel.js')(sequelize, Sequelize);
-db.sales = require('../models/saleModel.js')(sequelize, Sequelize);
-db.services = require('../models/serviceModel.js')(sequelize, Sequelize);
+db.Sale = require('../models/saleModel.js')(sequelize, Sequelize);
+db.Service = require('../models/serviceModel.js')(sequelize, Sequelize);
 
-const {user, price} = sequelize.models;
-price.belongsTo(user, { foreignKey: 'userId' });
-user.hasMany(price, { foreignKey: 'userId' });
-
+/******Relations between models*******/
+relations(sequelize.models);
 
 db.sequelize.sync({ force: true })
 .then(() => {
