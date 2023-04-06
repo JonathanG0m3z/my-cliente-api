@@ -21,6 +21,8 @@ const userRouter = require('./routes/userRouter');
 app.use('/users', userRouter);
 const priceRouter = require('./routes/priceRouter');
 app.use('/prices', priceRouter);
+const serviceRouter = require('./routes/serviceRouter');
+app.use('/services', serviceRouter);
 
 //port
 const PORT = process.env.PORT || 3001;
