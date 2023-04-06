@@ -1,7 +1,8 @@
+require('dotenv').config();
+const {JWT_SECRET} = process.env;
 const {User} = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const {JWT_SECRET} = require('dotenv').config();
 
 exports.createUser = async (req, res) => {
     try {
@@ -23,8 +24,11 @@ exports.validateUser = async (req, res) => {
         const userDB = await User.findOne({ where: { user: user } });
         if(userDB === null) throw Error("User not found");
         const isPasswordMatch = await bcrypt.compare(password, userDB.password);
-        if(isPasswordMatch) res.status(200).json({message: "Login successfully", id: userDB.id});
-        else throw Error("Password wrong");
+        if(isPasswordMatch) {
+            const payload = {userId: userDB.id};
+            const token = jwt.sign(payload, JWT_SECRET, {expiresIn: '1h'});
+            res.status(200).json({...payload, token});
+        }else throw Error("Password wrong");
     } catch (err) {
         res.status(400).json({message: err.message});
     }
