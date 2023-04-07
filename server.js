@@ -23,6 +23,8 @@ const priceRouter = require('./routes/priceRouter');
 app.use('/prices', priceRouter);
 const serviceRouter = require('./routes/serviceRouter');
 app.use('/services', serviceRouter);
+const accountRouter = require('./routes/accountRouter');
+app.use('/accounts', accountRouter);
 
 //port
 const PORT = process.env.PORT || 3001;

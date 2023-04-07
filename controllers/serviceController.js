@@ -37,7 +37,6 @@ exports.updateService = async (req, res) => {
 exports.deleteService = async (req, res) => {
     try {
         const {id} = req.params;
-        if(!id) throw Error("Complete the information");
         const isValid = await Service.findByPk(id);
         if(!isValid) throw Error("ServiceId doesn't exist");
         const service = await Service.destroy({ where: { id }});

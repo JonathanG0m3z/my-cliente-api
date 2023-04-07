@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/priceController');
+const priceController = require('../controllers/priceController');
 const verifyToken = require('../middlewares/jwtMiddleware');
 
-router.get('/', verifyToken, userController.getPrices);
-router.post('/', verifyToken, userController.addPrice);
-router.get('/:id', verifyToken, userController.getPriceById);
+router.get('/', verifyToken, priceController.getPrices);
+router.post('/', verifyToken, priceController.addPrice);
+router.get('/:id', verifyToken, priceController.getPriceById);
+router.put('/:id', verifyToken, priceController.updatePrice);
+router.delete('/:id', verifyToken, priceController.deletePrice);
 
 module.exports = router;
