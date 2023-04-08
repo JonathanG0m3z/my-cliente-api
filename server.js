@@ -27,6 +27,8 @@ const accountRouter = require('./routes/accountRouter');
 app.use('/accounts', accountRouter);
 const clientRouter = require('./routes/clientRouter');
 app.use('/clients', clientRouter);
+const saleRouter = require('./routes/saleRouter');
+app.use('/sales', saleRouter);
 
 //port
 const PORT = process.env.PORT || 3001;

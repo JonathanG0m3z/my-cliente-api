@@ -14,6 +14,8 @@ const relations = ({user, account, client, price, sale, service}) => {
     sale.belongsTo(account, { foreignKey: 'accountId' });
     user.hasMany(sale, { foreignKey: 'userId' });
     sale.belongsTo(user, { foreignKey: 'userId' });
+    client.hasMany(sale, { foreignKey: 'clientId' });
+    sale.belongsTo(client, { foreignKey: 'clientId' });
     /*CLIENT RELATIONS*/
     user.hasMany(client, { foreignKey: 'userId' });
     client.belongsTo(user, { foreignKey: 'userId' });

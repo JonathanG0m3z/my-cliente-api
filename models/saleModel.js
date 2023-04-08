@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATEONLY,
             allowNull: false,
           },
+          saleDate: {
+            type: DataTypes.DATEONLY,
+            defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+          },
           accountId: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -21,10 +25,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             allowNull: false,
           },
-          saleDate: {
-            type: DataTypes.DATEONLY,
-            defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
-          }
+          clientId: {
+            type: DataTypes.UUID,
+            allowNull: false,
+          },
     },
     {
       timestamps: false,
