@@ -25,7 +25,12 @@ module.exports = (sequelize, DataTypes) => {
           email: {
             type: DataTypes.STRING,
             allowNull: false,
+            unique: true,
           },
+          permission: {
+            type: DataTypes.STRING,
+            allowNull: true,
+          }
     });
     return User;
 };
