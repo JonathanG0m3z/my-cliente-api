@@ -11,7 +11,9 @@ exports.createUser = async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const newUser = await User.create({name, user, phone, email, password: hashedPassword,});
-        res.status(200).json(newUser);
+        res.status(200).json({
+            user: newUser.user,
+        });
     } catch (err) {
         if (err.parent?.code === 'ER_DUP_ENTRY') res.status(400).json({message: 'El usuario o correo que intentas registrar ya existe. Intenta con otro diferente.'});
         else res.status(400).json({message: err.message});
