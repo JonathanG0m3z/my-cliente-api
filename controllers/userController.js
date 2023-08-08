@@ -6,25 +6,25 @@ const jwt = require('jsonwebtoken');
 
 exports.createUser = async (req, res) => {
     try {
-        const {name, user, password, phone, email} = req.body;
-        if(!name || !user || !password || !phone || !email) throw Error("Error: information incomplete");
+        const {name, password, phone, email} = req.body;
+        if(!name || !password || !phone || !email) throw Error("Error: information incomplete");
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        const newUser = await User.create({name, user, phone, email, password: hashedPassword,});
+        const newUser = await User.create({name, phone, email, password: hashedPassword,});
         res.status(200).json({
             user: newUser.user,
         });
     } catch (err) {
-        if (err.parent?.code === 'ER_DUP_ENTRY') res.status(400).json({message: 'El usuario o correo que intentas registrar ya existe. Intenta con otro diferente.'});
+        if (err.parent?.code === 'ER_DUP_ENTRY') res.status(400).json({message: 'Este correo ya se encuentra registrado. Intenta con otro diferente.'});
         else res.status(400).json({message: err.message});
     }
 };
 
 exports.validateUser = async (req, res) => {
     try {
-        const {user, password} = req.body;
-        if(!user || !password) throw Error("Error: information incomplete");
-        const userDB = await User.findOne({ where: { user: user } });
+        const {email, password} = req.body;
+        if(!email || !password) throw Error("Error: information incomplete");
+        const userDB = await User.findOne({ where: { email: email } });
         if(userDB === null) throw Error("User not found");
         const isPasswordMatch = await bcrypt.compare(password, userDB.password);
         if(isPasswordMatch) {
