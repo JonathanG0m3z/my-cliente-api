@@ -1,8 +1,9 @@
 require('dotenv').config();
-const {JWT_SECRET} = process.env;
+const {JWT_SECRET, CRYPTOJS_SECRET_KEY} = process.env;
 const {User} = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const CryptoJS = require('crypto-js');
 
 exports.createUser = async (req, res) => {
     try {
@@ -26,10 +27,12 @@ exports.validateUser = async (req, res) => {
         if(!email || !password) throw Error("Error: information incomplete");
         const userDB = await User.findOne({ where: { email: email } });
         if(userDB === null) throw Error("Este correo electrónico no se encuentra registrado");
-        const isPasswordMatch = await bcrypt.compare(password, userDB.password);
+        const decryptedBytes = CryptoJS.AES.decrypt(password, CRYPTOJS_SECRET_KEY);
+        const decryptedPassword = decryptedBytes.toString(CryptoJS.enc.Utf8);
+        const isPasswordMatch = await bcrypt.compare(decryptedPassword, userDB.password);
         if(isPasswordMatch) {
             const payload = {...userDB.dataValues, password: ""};
-            const token = jwt.sign(payload, JWT_SECRET, {expiresIn: '1d'});
+            const token = jwt.sign(payload, JWT_SECRET, {expiresIn: '1m'});
             res.status(200).json({token});
         }else throw Error("Email o contraseña incorrectos");
     } catch (err) {
