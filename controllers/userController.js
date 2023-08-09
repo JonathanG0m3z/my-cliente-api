@@ -28,10 +28,9 @@ exports.validateUser = async (req, res) => {
         if(userDB === null) throw Error("Este correo electrónico no se encuentra registrado");
         const isPasswordMatch = await bcrypt.compare(password, userDB.password);
         if(isPasswordMatch) {
-            console.log(JWT_SECRET)
             const payload = {...userDB.dataValues, password: ""};
-            const token = jwt.sign(payload, JWT_SECRET, {expiresIn: '15d'});
-            res.status(200).json({...payload, token});
+            const token = jwt.sign(payload, JWT_SECRET, {expiresIn: '1d'});
+            res.status(200).json({token});
         }else throw Error("Email o contraseña incorrectos");
     } catch (err) {
         res.status(400).json({message: err.message});
