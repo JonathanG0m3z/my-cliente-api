@@ -1,17 +1,42 @@
 require('dotenv').config();
-const {JWT_SECRET} = process.env;
+const { JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
+const { decryptValue } = require('../utils/cryptoHooks');
+
+const invalidTokens = [];
 
 const verifyToken = (req, res, next) => {
-    const token = req.headers.authorization;
-    if (!token) return res.status(401).json({ message: 'No se proporcionó un token de autenticación' });
-    try {
-      const decodedToken = jwt.verify(token, JWT_SECRET);
-      req.userId = decodedToken.userId;
-      next();
-    } catch (err) {
-      res.status(401).json({ message: 'Token de autenticación no válido' });
+  const encryptedToken = req.headers.authorization.replace('Bearer ', '');
+  if (!encryptedToken) return res.status(401).json({ message: 'No se proporcionó un token de autenticación' });
+
+  const token = decryptValue(encryptedToken);
+
+  // if(invalidTokens.find(token.toString())) return res.status(401).json({ message: 'El token dejó de ser valido' });
+
+  try {
+    const decodedToken = jwt.verify(token, JWT_SECRET);
+    const currentTimestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+
+    if (decodedToken.exp && decodedToken.exp < currentTimestamp) {
+      return res.status(401).json({ message: 'Token de autenticación expirado' });
     }
-  };
+
+    // Verificar la firma del token
+    const isSignatureValid = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+    if (!isSignatureValid) {
+      return res.status(401).json({ message: 'Firma del token no válida' });
+    }
+
+    req.userId = decodedToken.userId;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Token de autenticación no válido' });
+  }
+};
+
+exports.invalidateToken = (token)=>{
+  invalidTokens.push(token);
+};
+
 
 module.exports = verifyToken;
