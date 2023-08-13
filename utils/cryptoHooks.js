@@ -6,6 +6,7 @@ exports.encryptValue = (value) => {
 };
 
 exports.decryptValue = (value) => {
-    const decryptedBytes = CryptoJS.AES.decrypt(value, CRYPTOJS_SECRET_KEY);
-    return decryptedBytes.toString(CryptoJS.enc.Utf8);
+    const decryptedBytes = CryptoJS.AES.decrypt(value.replace('Bearer ', ''), CRYPTOJS_SECRET_KEY);
+    const decryptedValue = decryptedBytes.toString(CryptoJS.enc.Utf8);
+    return decryptedValue;
 };

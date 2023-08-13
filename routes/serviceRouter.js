@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const serviceController = require('../controllers/serviceController');
-const verifyToken = require('../middlewares/jwtMiddleware');
+const { verifyToken } = require('../middlewares/jwtMiddleware');
 
 router.get('/', verifyToken, serviceController.getServices);
 router.post('/', verifyToken, serviceController.addService);

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const clientController = require('../controllers/clientController');
-const verifyToken = require('../middlewares/jwtMiddleware');
+const { verifyToken } = require('../middlewares/jwtMiddleware');
 
 router.get('/', verifyToken, clientController.getClients);
 router.post('/', verifyToken, clientController.addClient);

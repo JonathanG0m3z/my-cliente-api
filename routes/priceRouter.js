@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const priceController = require('../controllers/priceController');
-const verifyToken = require('../middlewares/jwtMiddleware');
+const { verifyToken } = require('../middlewares/jwtMiddleware');
 
 router.get('/', verifyToken, priceController.getPrices);
 router.post('/', verifyToken, priceController.addPrice);

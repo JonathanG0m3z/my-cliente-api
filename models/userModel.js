@@ -11,16 +11,24 @@ module.exports = (sequelize, DataTypes) => {
           },
           password: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
           },
           phone: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
           },
           email: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
+          },
+          picture: {
+            type: DataTypes.STRING,
+            allowNull: true,
+          },
+          google_account: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
           },
           permission: {
             type: DataTypes.STRING,

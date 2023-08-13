@@ -6,12 +6,12 @@ const { decryptValue } = require('../utils/cryptoHooks');
 const invalidTokens = [];
 
 const verifyToken = (req, res, next) => {
-  const encryptedToken = req.headers.authorization.replace('Bearer ', '');
+  const encryptedToken = req.headers.authorization;
   if (!encryptedToken) return res.status(401).json({ message: 'No se proporcionó un token de autenticación' });
 
   const token = decryptValue(encryptedToken);
 
-  // if(invalidTokens.find(token.toString())) return res.status(401).json({ message: 'El token dejó de ser valido' });
+  if (invalidTokens.find((item) => token === item)) return res.status(401).json({ message: 'El token dejó de ser valido' });
 
   try {
     const decodedToken = jwt.verify(token, JWT_SECRET);
@@ -27,16 +27,19 @@ const verifyToken = (req, res, next) => {
       return res.status(401).json({ message: 'Firma del token no válida' });
     }
 
-    req.userId = decodedToken.userId;
+    req.userId = decodedToken.id;
     next();
   } catch (err) {
     res.status(401).json({ message: 'Token de autenticación no válido' });
   }
 };
 
-exports.invalidateToken = (token)=>{
+const invalidateToken = (token) => {
   invalidTokens.push(token);
 };
 
 
-module.exports = verifyToken;
+module.exports = {
+  verifyToken,
+  invalidateToken
+};
