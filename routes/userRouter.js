@@ -7,6 +7,7 @@ router.get('/getUser/:id', verifyToken, userController.getUser);
 router.post('/', userController.createUser);
 router.post('/validate', userController.validateUser);
 router.get('/logOut', verifyToken, userController.logOut);
+router.post('/signin', userController.googleAuth);
 
 
 module.exports = router;
