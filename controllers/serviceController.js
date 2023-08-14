@@ -2,8 +2,8 @@ const {Service} = require('../config/database');
 
 exports.addService = async (req, res) => {
     try {
-        const {name} = req.body;
-        if(!name) throw Error("Complete the information");
+        const {name, userId} = req.body;
+        if(!name || !userId) throw Error("Complete the information");
         const newService = await Service.create({name});
         res.status(200).json(newService);
     } catch (err) {

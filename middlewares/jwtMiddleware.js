@@ -11,7 +11,7 @@ const verifyToken = (req, res, next) => {
 
   const token = decryptValue(encryptedToken);
 
-  if (invalidTokens.find((item) => token === item)) return res.status(401).json({ message: 'El token dejó de ser valido' });
+  if (invalidTokens.find((item) => token === item)) return res.status(401).json({ message: 'El token dejó de ser valido. Vuelve a iniciar sesión' });
 
   try {
     const decodedToken = jwt.verify(token, JWT_SECRET);

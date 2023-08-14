@@ -19,6 +19,9 @@ const relations = ({user, account, client, price, sale, service}) => {
     /*CLIENT RELATIONS*/
     user.hasMany(client, { foreignKey: 'userId' });
     client.belongsTo(user, { foreignKey: 'userId' });
+    /*SERVICE RELATIONS*/
+    user.hasMany(service, { foreignKey: 'userId' });
+    service.belongsTo(user, { foreignKey: 'userId' });
 };
 
 module.exports = relations;

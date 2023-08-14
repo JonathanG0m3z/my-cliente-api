@@ -28,6 +28,7 @@ exports.validateUser = async (req, res) => {
         if (!email || !password) throw Error("Error: information incomplete");
         const userDB = await User.findOne({ where: { email: email } });
         if (userDB === null) throw Error("Este correo electrónico no se encuentra registrado");
+        if(userDB.google_account) throw Error("Este correo electrónico fue registrado por medio de google");
         const decryptedPassword = decryptValue(password);
         const isPasswordMatch = await bcrypt.compare(decryptedPassword, userDB.password);
         if (isPasswordMatch) {
