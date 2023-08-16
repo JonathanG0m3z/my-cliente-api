@@ -1,4 +1,6 @@
 const {Client} = require('../config/database');
+const { decryptValue } = require('../utils/cryptoHooks');
+const jwt = require('jsonwebtoken');
 
 exports.addClient = async (req, res) => {
     try {
@@ -12,9 +14,12 @@ exports.addClient = async (req, res) => {
 
 exports.getClients = async (req, res) => {
     try {
-        const {userId} = req.query;
+        const encryptedToken = req.headers.authorization;
+        if (!encryptedToken) throw Error("Error: information incomplete");
+        const decryptedToken = decryptValue(encryptedToken);
+        const userId = jwt.decode(decryptedToken).id;
         const clients = await Client.findAll({where: {userId}});
-        res.status(200).json(clients);
+        res.status(200).json({clients});
     } catch (err) {
         res.status(400).json({message: err.message});
     }
