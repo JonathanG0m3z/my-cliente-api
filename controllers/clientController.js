@@ -14,10 +14,7 @@ exports.addClient = async (req, res) => {
 
 exports.getClients = async (req, res) => {
     try {
-        const encryptedToken = req.headers.authorization;
-        if (!encryptedToken) throw Error("Error: information incomplete");
-        const decryptedToken = decryptValue(encryptedToken);
-        const userId = jwt.decode(decryptedToken).id;
+        const {userId} = req;
         const clients = await Client.findAll({where: {userId}});
         res.status(200).json({clients});
     } catch (err) {
@@ -59,6 +56,18 @@ exports.deleteClient = async (req, res) => {
         if(!isValid) throw Error("ClientId doesn't exist");
         const client = await Client.destroy({where: {userId, id}});
         res.status(200).json({message: "Client deleted successfully"});
+    } catch (err) {
+        res.status(400).json({message: err.message});
+    }
+};
+
+exports.getClientsCombobox = async (req, res) => {
+    try {
+        const {userId} = req;
+        const clients = await Client.findAll({where: {userId}});
+        res.status(200).json({clients: clients.map((client)=>{
+            return {id: client.id, phone: client.phone, name: client.name}
+        })});
     } catch (err) {
         res.status(400).json({message: err.message});
     }

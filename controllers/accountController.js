@@ -1,4 +1,6 @@
 const {Account} = require('../config/database');
+const { Op } = require('sequelize');
+
 const regexFecha = /^\d{2}\/\d{2}\/\d{4}$/;
 
 exports.addAccount = async (req, res) => {
@@ -15,9 +17,9 @@ exports.addAccount = async (req, res) => {
 
 exports.getAccounts = async (req, res) => {
     try {
-        const {userId} = req.query;
+        const {userId} = req;
         const accounts = await Account.findAll({where: {userId}});
-        res.status(200).json(accounts);
+        res.status(200).json({accounts});
     } catch (err) {
         res.status(400).json({message: err.message});
     }
@@ -57,6 +59,26 @@ exports.deleteAccount = async (req, res) => {
         if(!isValid) throw Error("AccountId doesn't exist");
         const account = await Account.destroy({where: {userId, id}});
         res.status(200).json({message: "Account deleted successfully"});
+    } catch (err) {
+        res.status(400).json({message: err.message});
+    }
+};
+
+exports.getAccountsCombo = async (req, res) => {
+    try {
+        const {userId} = req;
+        const currentDate = new Date();
+        const accounts = await Account.findAll({
+            where: {
+                userId,
+                expiration: {
+                    [Op.gte]: currentDate
+                }
+            }
+        });
+        res.status(200).json({accounts: accounts.map((account)=>{
+            return {id: account.id, email: account.email}
+        })});
     } catch (err) {
         res.status(400).json({message: err.message});
     }
