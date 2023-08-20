@@ -1,6 +1,4 @@
 const {Client} = require('../config/database');
-const { decryptValue } = require('../utils/cryptoHooks');
-const jwt = require('jsonwebtoken');
 
 exports.addClient = async (req, res) => {
     try {

@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const {Service} = require('../config/database');
 
 exports.addService = async (req, res) => {
@@ -13,8 +14,18 @@ exports.addService = async (req, res) => {
 
 exports.getServices = async (req, res) => {
     try {
-        const services = await Service.findAll();
-        res.status(200).json(services);
+        const {userId} = req;
+        const services = await Service.findAll({
+            where: {
+                [Op.or]: [
+                    { userId: null },
+                    { userId: userId }
+                ]
+            }
+        });
+        res.status(200).json({services: services.map((service)=>{
+            return {id: service.id, name: service.name}
+        })});
     } catch (err) {
         res.status(400).json({message: err});
     }
