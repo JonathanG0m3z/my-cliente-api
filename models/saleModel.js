@@ -13,9 +13,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATEONLY,
             allowNull: false,
           },
-          saleDate: {
-            type: DataTypes.DATEONLY,
-            defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
+          profile: {
+            type: DataTypes.STRING,
+            allowNull: true,
+          },
+          pin: {
+            type: DataTypes.STRING,
+            allowNull: true,
           },
           accountId: {
             type: DataTypes.INTEGER,
@@ -31,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
           },
     },
     {
-      timestamps: false,
+      timestamps: true,
     });
     return Sale;
 };
