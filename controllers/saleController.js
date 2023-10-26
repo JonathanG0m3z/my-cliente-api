@@ -87,7 +87,7 @@ exports.addSale = async (req, res) => {
 
 exports.getSales = async (req, res) => {
     try {
-        const { userId } = req.query;
+        const { userId } = req;
         const sales = await Sale.findAll({
             where: { userId },
             include: [{
