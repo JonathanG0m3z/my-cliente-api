@@ -1,6 +1,8 @@
 const dbConfig = require('./dbConfig');
 const { Sequelize } = require('sequelize');
 const relations = require('./dbRelationship');
+const moment = require('moment-timezone');
+moment.tz.setDefault('America/Bogota');
 
 const sequelize = new Sequelize(
     dbConfig.DB,
@@ -8,7 +10,9 @@ const sequelize = new Sequelize(
     dbConfig.PASSWORD, {
         host: dbConfig.HOST,
         dialect: dbConfig.dialect,
-    }
+        dialectOptions: dbConfig.dialectOptions,
+        timezone: dbConfig.timezone,
+    },
 );
 
 sequelize.authenticate()
