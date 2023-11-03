@@ -8,79 +8,48 @@ exports.addSale = async (req, res) => {
         const { userId } = req;
         const { expiration, account, client, pin, profile, price, phone, email, password, profiles, accountExpiration, service } = req.body;
         if (!expiration || !account || !client || pin === undefined || profile === undefined || price === undefined) throw Error("Complete the information");
-        if (!client.id && !account.id) {
-            const newClient = await Client.create({
+        const newClient = client.id
+            ? await Client.findByPk(client.id)
+            : await Client.create({
                 name: client.inputValue,
                 phone,
                 email,
                 userId,
             });
-            const newAccount = await Account.create({
+
+        const newAccount = account.id
+            ? await Account.findByPk(account.id, {
+                include: [{
+                    model: Service,
+                    attributes: ['name']
+                }]
+            })
+            : await Account.create({
                 email: account.inputValue,
                 password: decryptValue(password),
-                expiration: moment(accountExpiration).format("YYYY-MM-DD"),
+                expiration: moment(accountExpiration).format('YYYY-MM-DD'),
                 profiles,
                 serviceId: service.id,
                 userId,
             });
-            const newSale = await Sale.create({
-                userId,
-                price,
-                profile,
-                pin,
-                expiration: moment(expiration).format("YYYY-MM-DD"),
-                accountId: newAccount.id,
-                clientId: newClient.id,
-            });
-            res.status(200).json({message: 'Venta registrada con éxito'});
-        } else if (!client.id) {
-            const newClient = await Client.create({
-                name: client.inputValue,
-                phone,
-                email,
-                userId,
-            });
-            const newSale = await Sale.create({
-                userId,
-                price,
-                profile,
-                pin,
-                expiration: moment(expiration).format("YYYY-MM-DD"),
-                accountId: account.id,
-                clientId: newClient.id,
-            });
-            res.status(200).json({message: 'Venta registrada con éxito'});
-        } else if (!account.id) {
-            const newAccount = await Account.create({
-                email: account.inputValue,
-                password: decryptValue(password),
-                expiration: moment(accountExpiration).format("YYYY-MM-DD"),
-                profiles,
-                serviceId: service.id,
-                userId,
-            });
-            const newSale = await Sale.create({
-                userId,
-                price,
-                profile,
-                pin,
-                expiration: moment(expiration).format("YYYY-MM-DD"),
-                accountId: newAccount.id,
-                clientId: client.id,
-            });
-            res.status(200).json({message: 'Venta registrada con éxito'});
-        } else {
-            const newSale = await Sale.create({
-                userId,
-                price,
-                profile,
-                pin,
-                expiration: moment(expiration).format("YYYY-MM-DD"),
-                accountId: account.id,
-                clientId: client.id,
-            });
-            res.status(200).json({message: 'Venta registrada con éxito'});
-        }
+        const newSale = await Sale.create({
+            userId,
+            price,
+            profile,
+            pin,
+            expiration: moment(expiration).format("YYYY-MM-DD"),
+            accountId: newAccount.id,
+            clientId: newClient.id,
+        });
+        res.status(200).json({
+            message: 'Venta registrada con éxito',
+            sale: newSale, // Include the newSale details
+            account: {
+                ...newAccount.dataValues,
+                password: encryptValue(newAccount.password)
+            }, // Include the newAccount details
+            client: newClient, // Include the newClient details
+        });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
