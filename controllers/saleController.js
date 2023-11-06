@@ -16,15 +16,16 @@ exports.addSale = async (req, res) => {
                 email,
                 userId,
             });
-
-        const newAccount = account.id
-            ? await Account.findByPk(account.id, {
+        let newAccount = {};
+        if (account.id) {
+            newAccount = await Account.findByPk(account.id, {
                 include: [{
                     model: Service,
                     attributes: ['name']
                 }]
-            })
-            : await Account.create({
+            });
+        } else {
+            const temporalAccount = await Account.create({
                 email: account.inputValue,
                 password: decryptValue(password),
                 expiration: moment(accountExpiration).format('YYYY-MM-DD'),
@@ -32,6 +33,13 @@ exports.addSale = async (req, res) => {
                 serviceId: service.id,
                 userId,
             });
+            newAccount = await Account.findByPk(temporalAccount.id, {
+                include: [{
+                    model: Service,
+                    attributes: ['name']
+                }]
+            });
+        }
         const newSale = await Sale.create({
             userId,
             price,
