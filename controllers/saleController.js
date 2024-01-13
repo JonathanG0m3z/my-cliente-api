@@ -115,9 +115,9 @@ exports.getSales = async (req, res) => {
 
 exports.getSaleById = async (req, res) => {
     try {
-        const { userId } = req.query;
+        const { userId } = req;
         const { id } = req.params;
-        const isValid = await Sale.findAll({
+        const sale = await Sale.findOne({
             where: { userId, id },
             include: [{
                 model: Client,
@@ -127,16 +127,7 @@ exports.getSaleById = async (req, res) => {
                 attributes: ['email', 'password'],
             }]
         });
-        if (!isValid) throw Error("SaleId doesn't exist");
-        const sale = await Sale.findByPk(id, {
-            include: [{
-                model: Client,
-                attributes: ['name', 'phone', 'email'],
-            }, {
-                model: Account,
-                attributes: ['email', 'password'],
-            }]
-        });
+        if (!sale) throw Error("No se encontró la venta");
         res.status(200).json(sale);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -145,7 +136,7 @@ exports.getSaleById = async (req, res) => {
 
 exports.updateSale = async (req, res) => {
     try {
-        const { userId } = req.query;
+        const { userId } = req;
         const { id } = req.params;
         const isValid = await Sale.findAll({ where: { userId, id } });
         if (!isValid) throw Error("SaleId doesn't exist");
