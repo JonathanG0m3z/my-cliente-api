@@ -8,11 +8,11 @@ const { invalidateToken } = require('../middlewares/jwtMiddleware');
 
 exports.createUser = async (req, res) => {
     try {
-        const { name, password, phone, email } = req.body;
-        if (!name || !password || !phone || !email) throw Error("Error: information incomplete");
+        const { name, password, phone, email, country } = req.body;
+        if (!name || !password || !phone || !email || !country) throw Error("Error: information incomplete");
         const decryptedPassword = decryptValue(password);
         const hashedPassword = await bcrypt.hash(decryptedPassword, 12);
-        const newUser = await User.create({ name, phone, email, password: hashedPassword, google_account: false, });
+        const newUser = await User.create({ name, phone, email, password: hashedPassword, google_account: false, country });
         res.status(200).json({
             message: "Usuario creado correctamente",
         });
@@ -24,7 +24,7 @@ exports.createUser = async (req, res) => {
 
 exports.validateUser = async (req, res) => {
     try {
-        const { email, password, keepLoggedIn = false } = req.body;
+        const { email, password, remember = false } = req.body;
         if (!email || !password) throw Error("Error: information incomplete");
         const userDB = await User.findOne({ where: { email: email } });
         if (userDB === null) throw Error("Este correo electrónico no se encuentra registrado");
@@ -33,7 +33,7 @@ exports.validateUser = async (req, res) => {
         const isPasswordMatch = await bcrypt.compare(decryptedPassword, userDB.password);
         if (isPasswordMatch) {
             const payload = { ...userDB.dataValues, password: null };
-            const decryptedToken = jwt.sign(payload, JWT_SECRET, { expiresIn: keepLoggedIn ? '1d' : '1m' });
+            const decryptedToken = jwt.sign(payload, JWT_SECRET, { expiresIn: remember ? '1d' : '1m' });
             const token = encryptValue(decryptedToken);
             res.status(200).json({ token });
         } else throw Error("Email o contraseña incorrectos");
