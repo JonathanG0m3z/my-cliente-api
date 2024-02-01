@@ -12,20 +12,37 @@ exports.addService = async (req, res) => {
     }
 };
 
-exports.getServices = async (req, res) => {
+exports.getServicesCombo = async (req, res) => {
     try {
         const {userId} = req;
-        const services = await Service.findAll({
-            where: {
-                [Op.or]: [
-                    { userId: null },
-                    { userId: userId }
-                ]
-            }
+        const { search = '', page = 1, limit = 5 } = req.query;
+        const whereCondition = {
+            [Op.or]: [
+                { userId: null },
+                { userId: userId }
+            ]
+        };
+        if (search) {
+            whereCondition.name = {
+                [Op.like]: `%${search}%`
+            };
+        }
+        const offset = (page - 1) * limit;
+        const options = {
+            where: whereCondition,
+            offset: Number(offset),
+            limit: Number(limit)
+        };
+        const services = await Service.findAndCountAll(options);
+        res.status(200).json({
+            total: services.count,
+            totalPages: Math.ceil(services.count / limit),
+            currentPage: page,
+            services: services.rows.map(service => ({
+                id: service.id,
+                name: service.name
+            }))
         });
-        res.status(200).json({services: services.map((service)=>{
-            return {id: service.id, name: service.name}
-        })});
     } catch (err) {
         res.status(400).json({message: err});
     }
