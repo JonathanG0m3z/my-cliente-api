@@ -1,5 +1,6 @@
 const { Account } = require('../config/database');
 const { Op } = require('sequelize');
+const moment = require('moment');
 
 const regexFecha = /^\d{2}\/\d{2}\/\d{4}$/;
 
@@ -71,7 +72,7 @@ exports.getAccountsCombo = async (req, res) => {
         const whereCondition = {
             userId,
             expiration: {
-                [Op.gte]: new Date()
+                [Op.gte]: moment().subtract(3, 'days')
             }
         };
         if (search) {
