@@ -6,19 +6,20 @@ const { Op } = require('sequelize');
 exports.addSale = async (req, res) => {
     try {
         const { userId } = req;
-        const { expiration, account, client, pin, profile, price, phone, email, password, profiles, accountExpiration, service } = req.body;
-        if (!expiration || !account || !client || pin === undefined || profile === undefined || price === undefined) throw Error("Complete the information");
-        const newClient = client.id
-            ? await Client.findByPk(client.id)
+        const { expiration, account, client, pin, profile, price } = req.body;
+        if (!expiration || !account || !client) throw Error("Completa la información");
+        const newClient = client.search?.label
+            ? await Client.findByPk(client.search?.value)
             : await Client.create({
-                name: client.inputValue,
-                phone,
-                email,
+                name: client.name,
+                phone: client.phone,
+                email: client.email,
+                country: client.country,
                 userId,
             });
         let newAccount = {};
-        if (account.id) {
-            newAccount = await Account.findByPk(account.id, {
+        if (account?.email?.label) {
+            newAccount = await Account.findByPk(account?.email?.value, {
                 include: [{
                     model: Service,
                     attributes: ['name']
@@ -26,11 +27,11 @@ exports.addSale = async (req, res) => {
             });
         } else {
             const temporalAccount = await Account.create({
-                email: account.inputValue,
-                password: decryptValue(password),
-                expiration: moment(accountExpiration).format('YYYY-MM-DD'),
-                profiles,
-                serviceId: service.id,
+                email: account?.email?.value,
+                password: decryptValue(account?.password),
+                expiration: account?.expiration,
+                profiles: account?.profiles,
+                serviceId: account?.service?.value,
                 userId,
             });
             newAccount = await Account.findByPk(temporalAccount.id, {
@@ -42,10 +43,10 @@ exports.addSale = async (req, res) => {
         }
         const newSale = await Sale.create({
             userId,
-            price,
+            price: price ?? 0,
             profile,
             pin,
-            expiration: moment(expiration).format("YYYY-MM-DD"),
+            expiration,
             accountId: newAccount.id,
             clientId: newClient.id,
         });
