@@ -21,6 +21,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
           },
+          deleted_at: {
+            type: DataTypes.DATEONLY,
+            allowNull: true,
+          },
+          inactive: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+          },
           userId: {
             type: DataTypes.UUID,
             allowNull: false,

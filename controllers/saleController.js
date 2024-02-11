@@ -104,8 +104,6 @@ exports.getSales = async (req, res) => {
 
         res.status(200).json({
             total: sales.count,
-            totalPages: Math.ceil(sales.count / limit),
-            currentPage: page,
             sales: sales.rows
         });
     } catch (err) {
