@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
     const Price = sequelize.define("price", {
         id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
-            autoIncrement:true,
           },
           price: {
             type: DataTypes.INTEGER,

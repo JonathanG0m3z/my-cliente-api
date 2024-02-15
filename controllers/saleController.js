@@ -79,11 +79,11 @@ exports.getSales = async (req, res) => {
             include: [
                 {
                     model: Client,
-                    attributes: ['name', 'phone', 'email'],
+                    attributes: ['name', 'phone', 'email', 'id'],
                 },
                 {
                     model: Account,
-                    attributes: ['email', 'password'], // Excluir el campo de contraseña en la respuesta por defecto
+                    attributes: ['email', 'password', 'id'], // Excluir el campo de contraseña en la respuesta por defecto
                     include: [
                         {
                             model: Service,
