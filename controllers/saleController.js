@@ -135,12 +135,68 @@ exports.getSaleById = async (req, res) => {
 
 exports.updateSale = async (req, res) => {
     try {
-        const { userId } = req;
         const { id } = req.params;
-        const isValid = await Sale.findAll({ where: { userId, id } });
-        if (!isValid) throw Error("SaleId doesn't exist");
-        const sale = await Sale.update(req.body, { where: { userId, id } });
-        res.status(200).json({ message: `${sale} fields updated successfully` });
+        const { expiration, account, client, pin, profile, price } = req.body;
+        if (!expiration || !account || !client) throw Error("Completa la información");
+
+        const saleToUpdate = await Sale.findByPk(id);
+
+        if (!saleToUpdate) throw Error("No se encontró la venta");
+
+        saleToUpdate.expiration = expiration;
+        saleToUpdate.pin = pin;
+        saleToUpdate.profile = profile;
+        saleToUpdate.price = price ?? saleToUpdate.price;
+
+        let updatedAccount = {};
+        if (account?.email?.label) {
+            updatedAccount = await Account.findByPk(account?.email?.value, {
+                include: [{
+                    model: Service,
+                    attributes: ['name']
+                }]
+            });
+        } else {
+            const temporalAccount = await Account.create({
+                email: account?.email?.value,
+                password: decryptValue(account?.password),
+                expiration: account?.expiration,
+                profiles: account?.profiles,
+                serviceId: account?.service?.value,
+                userId: saleToUpdate.userId,
+            });
+            updatedAccount = await Account.findByPk(temporalAccount.id, {
+                include: [{
+                    model: Service,
+                    attributes: ['name']
+                }]
+            });
+        }
+
+        const updatedClient = client.search?.label
+            ? await Client.findByPk(client.search?.value)
+            : await Client.create({
+                name: client.name,
+                phone: client.phone,
+                email: client.email,
+                country: client.country,
+                userId: saleToUpdate.userId,
+            });
+
+        saleToUpdate.accountId = updatedAccount.id;
+        saleToUpdate.clientId = updatedClient.id;
+
+        await saleToUpdate.save();
+
+        res.status(200).json({
+            message: 'Venta actualizada con éxito',
+            sale: saleToUpdate,
+            account: {
+                ...updatedAccount.dataValues,
+                password: encryptValue(updatedAccount.password)
+            },
+            client: updatedClient,
+        });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
