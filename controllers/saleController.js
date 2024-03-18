@@ -79,7 +79,7 @@ exports.getSales = async (req, res) => {
             include: [
                 {
                     model: Client,
-                    attributes: ['name', 'phone', 'email', 'id'],
+                    attributes: ['name', 'phone', 'email', 'id', 'country'],
                 },
                 {
                     model: Account,
@@ -207,9 +207,9 @@ exports.deleteSale = async (req, res) => {
         const { userId } = req;
         const { id } = req.params;
         const isValid = await Sale.findAll({ where: { userId, id } });
-        if (!isValid) throw Error("SaleId doesn't exist");
+        if (!isValid) throw Error("No se encontró el ID de la venta");
         const sale = await Sale.destroy({ where: { userId, id } });
-        res.status(200).json({ message: "Sale deleted successfully" });
+        res.status(200).json({ message: "Venta eliminada con exito" });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
