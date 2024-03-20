@@ -74,7 +74,8 @@ exports.getSales = async (req, res) => {
         const sales = await Sale.findAndCountAll({
             where: {
                 userId,
-                expiration: { [Op.gte]: currentDate }
+                expiration: { [Op.gte]: currentDate },
+                renewed: { [Op.not]: true }
             },
             include: [
                 {

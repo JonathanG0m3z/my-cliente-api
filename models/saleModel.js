@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: true,
           },
+          renewed: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+          },
           accountId: {
             type: DataTypes.UUID,
             allowNull: false,
