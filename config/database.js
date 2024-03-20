@@ -10,8 +10,7 @@ const sequelize = new Sequelize(
     dbConfig.PASSWORD, {
         host: dbConfig.HOST,
         dialect: dbConfig.dialect,
-        dialectOptions: dbConfig.dialectOptions,
-        timezone: dbConfig.timezone,
+        dialectOptions: dbConfig.dialectOptions
     },
 );
 

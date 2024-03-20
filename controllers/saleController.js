@@ -215,3 +215,35 @@ exports.deleteSale = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.renewSale = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { expiration, pin, profile, price } = req.body;
+
+        // Buscar la venta existente
+        const sale = await Sale.findByPk(id);
+        if (!sale) throw new Error("La venta no fue encontrada");
+
+        // Actualizar el campo renew en la venta existente
+        await Sale.update({ renewed: true }, { where: { id: id } });
+
+        // Crear una nueva venta basada en los datos de la venta existente
+        const newSale = await Sale.create({
+            userId: sale.userId,
+            price: price ?? sale.price,
+            profile: profile ?? sale.profile,
+            pin: pin ?? sale.pin,
+            expiration: expiration ?? sale.expiration,
+            accountId: sale.accountId,
+            clientId: sale.clientId,
+        });
+
+        res.status(200).json({
+            message: 'Venta renovada exitosamente',
+            renewedSale: newSale,
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};

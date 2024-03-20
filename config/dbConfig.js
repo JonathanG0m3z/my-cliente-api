@@ -7,7 +7,6 @@ module.exports = {
     dialectOptions: {
         useUTC: false,
     },
-    timezone: '-05:00',
     pool: {
         max: 5,
         min: 0,
