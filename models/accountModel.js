@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
           },
+          deleted_at: {
+            type: DataTypes.DATE,
+            allowNull: true,
+          },
           serviceId: {
             type: DataTypes.UUID,
             allowNull: false,

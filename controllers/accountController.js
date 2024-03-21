@@ -1,6 +1,7 @@
-const { Account } = require('../config/database');
+const { Account, Service } = require('../config/database');
 const { Op } = require('sequelize');
 const moment = require('moment');
+const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 
 const regexFecha = /^\d{2}\/\d{2}\/\d{4}$/;
 
@@ -19,8 +20,35 @@ exports.addAccount = async (req, res) => {
 exports.getAccounts = async (req, res) => {
     try {
         const { userId } = req;
-        const accounts = await Account.findAll({ where: { userId } });
-        res.status(200).json({ accounts });
+        const currentDate = moment().subtract(5, 'days').format('YYYY-MM-DD'); // Obtener la fecha actual
+        const { page = 1, limit = 10 } = req.query; // Establecer valores predeterminados para la página y el límite
+        const offset = (page - 1) * limit; // Calcular el desplazamiento basado en la página y el límite
+
+        const accounts = await Account.findAndCountAll({
+            where: {
+                userId,
+                expiration: { [Op.gte]: currentDate },
+                deleted_at: { [Op.is]: null }
+            },
+            include: [
+                {
+                    model: Service,
+                    attributes: ['name']
+                }
+            ],
+            order: [['expiration', 'ASC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        accounts.rows.forEach((accounts) => {
+            accounts.password = encryptValue(accounts.password);
+        });
+
+        res.status(200).json({
+            total: accounts.count,
+            accounts: accounts.rows
+        });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -73,7 +101,8 @@ exports.getAccountsCombo = async (req, res) => {
             userId,
             expiration: {
                 [Op.gte]: moment().subtract(3, 'days')
-            }
+            },
+            deleted_at: { [Op.is]: null }
         };
         if (search) {
             whereCondition.email = {
