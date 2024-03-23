@@ -1,17 +1,21 @@
-const { Account, Service } = require('../config/database');
-const { Op } = require('sequelize');
+const { Account, Service, Sale } = require('../config/database');
+const { Op, where } = require('sequelize');
 const moment = require('moment');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 
-const regexFecha = /^\d{2}\/\d{2}\/\d{4}$/;
-
 exports.addAccount = async (req, res) => {
     try {
-        const { expiration } = req.body;
-        const { userId } = req.query;
-        if (!regexFecha.test(expiration)) throw Error("The expiration field must be a date");
-        const newAccount = await Account.create({ ...req.body, userId });
-        res.status(200).json(newAccount);
+        const { userId } = req;
+        const { email, password, expiration, profiles, service } = req.body;
+        const newAccount = await Account.create({
+            email: email,
+            password: decryptValue(password),
+            expiration: expiration,
+            profiles: profiles,
+            serviceId: service?.value,
+            userId,
+        });
+        return { ...newAccount, password: password, service: { name: service?.label } };
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -40,14 +44,25 @@ exports.getAccounts = async (req, res) => {
             limit: parseInt(limit),
             offset: parseInt(offset)
         });
-
-        accounts.rows.forEach((accounts) => {
-            accounts.password = encryptValue(accounts.password);
-        });
-
+        const accountsList = []
+        // Iterar sobre cada cuenta para agregar el campo profilesAvailable
+        for (const account of accounts.rows) {
+            const salesCount = await Sale.count({
+                where: {
+                    accountId: account.dataValues.id,
+                    renewed: { [Op.not]: true },
+                    expiration: { [Op.gte]: currentDate }
+                }
+            });
+            accountsList.push({
+                ...account.dataValues,
+                profilesAvailable: account.dataValues.profiles - salesCount,
+                password: encryptValue(account.password)
+            });
+        }
         res.status(200).json({
             total: accounts.count,
-            accounts: accounts.rows
+            accounts: accountsList
         });
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -69,12 +84,18 @@ exports.getAccountById = async (req, res) => {
 
 exports.updateAccount = async (req, res) => {
     try {
-        const { userId } = req.query;
         const { id } = req.params;
-        const isValid = await Account.findAll({ where: { userId, id } });
-        if (!isValid) throw Error("AccountId doesn't exist");
-        const account = await Account.update(req.body, { where: { userId, id } });
-        res.status(200).json({ message: `${account} fields updated successfully` });
+        const { userId } = req;
+        const { email, password, expiration, profiles, service } = req.body;
+        const account = await Account.update({
+            email: email,
+            password: decryptValue(password),
+            expiration: expiration,
+            profiles: profiles,
+            serviceId: service?.value,
+            userId,
+        }, { where: { userId, id } });
+        res.status(200).json({ message: "Cuenta actualizada correctamente" });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -82,12 +103,10 @@ exports.updateAccount = async (req, res) => {
 
 exports.deleteAccount = async (req, res) => {
     try {
-        const { userId } = req.query;
+        const { userId } = req;
         const { id } = req.params;
-        const isValid = await Account.findAll({ where: { userId, id } });
-        if (!isValid) throw Error("AccountId doesn't exist");
-        const account = await Account.destroy({ where: { userId, id } });
-        res.status(200).json({ message: "Account deleted successfully" });
+        const account = await Account.update({ deleted_at: moment().format('YYYY-MM-DD HH:mm:ss') }, { where: { userId, id } });
+        res.status(200).json({ message: "Cuenta eliminada correctamente" });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -124,6 +143,24 @@ exports.getAccountsCombo = async (req, res) => {
                 id: account.id,
                 email: account.email
             }))
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+exports.renewAccount = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { password, expiration } = req.body;
+        const account = await Account.findByPk(id);
+        if (!account) throw new Error("La cuenta no fue encontrada");
+        await Account.update({
+            password: decryptValue(password),
+            expiration: expiration
+        }, { where: { id: id } });
+        res.status(200).json({
+            message: 'Cuenta renovada exitosamente'
         });
     } catch (err) {
         res.status(400).json({ message: err.message });

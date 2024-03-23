@@ -7,7 +7,8 @@ router.get('/', verifyToken, accountController.getAccounts);
 router.post('/', verifyToken, accountController.addAccount);
 router.get('/combobox', verifyToken, accountController.getAccountsCombo);
 router.get('/:id', verifyToken, accountController.getAccountById);
-router.put('/:id', verifyToken, accountController.updateAccount);
+router.post('/:id', verifyToken, accountController.updateAccount);
 router.delete('/:id', verifyToken, accountController.deleteAccount);
+router.post('/renew/:id', verifyToken, accountController.renewAccount);
 
 module.exports = router;

@@ -84,7 +84,7 @@ exports.getSales = async (req, res) => {
                 },
                 {
                     model: Account,
-                    attributes: ['email', 'password', 'id'], // Excluir el campo de contraseña en la respuesta por defecto
+                    attributes: ['email', 'password', 'id', 'expiration'],
                     include: [
                         {
                             model: Service,
