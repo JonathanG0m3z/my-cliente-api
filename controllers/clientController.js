@@ -3,8 +3,16 @@ const { Op } = require('sequelize');
 
 exports.addClient = async (req, res) => {
     try {
-        const {userId} = req.query;
-        const newClient = await Client.create({...req.body, userId});
+        const { userId } = req;
+        const { name, phone, email, country } = req.body;
+        if (!name || !phone) throw Error("Completa la información");
+        const newClient = await Client.create({
+                name,
+                phone,
+                email,
+                country,
+                userId,
+            });
         res.status(200).json(newClient);
     } catch (err) {
         res.status(400).json({message: err.message});
@@ -36,12 +44,17 @@ exports.getClientById = async (req, res) => {
 
 exports.updateClient = async (req, res) => {
     try {
-        const {userId} = req.query;
-        const {id} = req.params;
-        const isValid = await Client.findAll({where: {userId, id}});
-        if(!isValid) throw Error("ClientId doesn't exist");
-        const client = await Client.update(req.body, {where: {userId, id}});
-        res.status(200).json({message: `${client} fields updated successfully`});
+        const { id } = req.params;
+        const { userId } = req;
+        const { name, phone, email, country } = req.body;
+        const client = await Client.update({
+            email,
+            name,
+            phone,
+            phone,
+            country
+        }, { where: { userId, id } });
+        res.status(200).json({ message: "Cliente actualizado correctamente" });
     } catch (err) {
         res.status(400).json({message: err.message});
     }
