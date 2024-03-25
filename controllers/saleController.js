@@ -2,6 +2,7 @@ const moment = require('moment');
 const { Sale, Client, Account, Service } = require('../config/database');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 const { Op } = require('sequelize');
+const transporter = require('../config/mailer');
 
 exports.addSale = async (req, res) => {
     try {
@@ -247,3 +248,23 @@ exports.renewSale = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.sendEmailReminder = async (req, res) => {
+    try {
+        const { userId } = req;
+        const info = await transporter.sendMail({
+            from: '"Recordatorio MyCliente" <contacto.mycliente@gmail.com>', // sender address
+            // to: "bar@example.com, baz@example.com", // list of receivers
+            to: "jg350u@gmail.com",
+            subject: "!Mensaje importante!", // Subject line
+            // text: "Hello world?", // plain text body
+            html: "<b>Te amo tanto como no puedes imaginar</b>", // html body
+        });
+        res.status(200).json({
+            message: 'Correo enviado',
+            info: info,
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+}
