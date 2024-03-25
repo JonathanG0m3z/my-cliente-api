@@ -3,9 +3,10 @@ const {Service} = require('../config/database');
 
 exports.addService = async (req, res) => {
     try {
-        const {name, userId} = req.body;
-        if(!name || !userId) throw Error("Complete the information");
-        const newService = await Service.create({name});
+        const {userId} = req;
+        const {name} = req.body;
+        if(!name || !userId) throw Error("Complete la información por favor");
+        const newService = await Service.create({name, userId});
         res.status(200).json(newService);
     } catch (err) {
         res.status(400).json({message: err.message});
@@ -76,13 +77,14 @@ exports.getServicesCombo = async (req, res) => {
 
 exports.updateService = async (req, res) => {
     try {
+        const {userId} = req;
         const {id} = req.params;
         const {name} = req.body;
-        if(!name || !id) throw Error("Complete the information");
+        if(!name || !id) throw Error("Complete la información por favor");
         const isValid = await Service.findByPk(id);
-        if(!isValid) throw Error("ServiceId doesn't exist");
-        const service = await Service.update({name}, { where: { id }});
-        res.status(200).json({message: `${service} fields updated successfully`});
+        if(!isValid) throw Error("El servicio no existe");
+        const service = await Service.update({name}, { where: { id, userId }});
+        res.status(200).json({message: 'Servicio actualizado con exito'});
     } catch (err) {
         res.status(400).json({message: err.message});
     }
@@ -90,11 +92,12 @@ exports.updateService = async (req, res) => {
 
 exports.deleteService = async (req, res) => {
     try {
+        const {userId} = req;
         const {id} = req.params;
         const isValid = await Service.findByPk(id);
-        if(!isValid) throw Error("ServiceId doesn't exist");
-        const service = await Service.destroy({ where: { id }});
-        res.status(200).json({message: "Service deleted successfully"});
+        if(!isValid) throw Error("El servicio no existe");
+        const service = await Service.destroy({ where: { id, userId } });
+        res.status(200).json({message: "Servicio eliminado correctamente"});
     } catch (err) {
         res.status(400).json({message: err.message});
     }

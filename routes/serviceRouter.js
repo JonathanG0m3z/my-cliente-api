@@ -6,7 +6,7 @@ const { verifyToken } = require('../middlewares/jwtMiddleware');
 router.get('/', verifyToken, serviceController.getServices);
 router.get('/combobox', verifyToken, serviceController.getServicesCombo);
 router.post('/', verifyToken, serviceController.addService);
-router.put('/:id', verifyToken, serviceController.updateService);
+router.post('/:id', verifyToken, serviceController.updateService);
 router.delete('/:id', verifyToken, serviceController.deleteService);
 
 module.exports = router;
