@@ -12,6 +12,32 @@ exports.addService = async (req, res) => {
     }
 };
 
+exports.getServices = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { page = 1, limit = 10 } = req.query; // Establecer valores predeterminados para la página y el límite
+        const offset = (page - 1) * limit; // Calcular el desplazamiento basado en la página y el límite
+
+        const services = await Service.findAndCountAll({
+            where: {
+                [Op.or]: [
+                    { userId: null },
+                    { userId: userId }
+                ]
+            },
+            order: [['name', 'ASC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+        res.status(200).json({
+            total: services.count,
+            services: services.rows
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
 exports.getServicesCombo = async (req, res) => {
     try {
         const {userId} = req;

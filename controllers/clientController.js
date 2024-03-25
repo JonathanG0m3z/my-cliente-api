@@ -21,11 +21,25 @@ exports.addClient = async (req, res) => {
 
 exports.getClients = async (req, res) => {
     try {
-        const {userId} = req;
-        const clients = await Client.findAll({where: {userId}});
-        res.status(200).json({clients});
+        const { userId } = req;
+        const { page = 1, limit = 10 } = req.query; // Establecer valores predeterminados para la página y el límite
+        const offset = (page - 1) * limit; // Calcular el desplazamiento basado en la página y el límite
+
+        const clients = await Client.findAndCountAll({
+            where: {
+                userId,
+                deleted_at: { [Op.is]: null }
+            },
+            order: [['name', 'ASC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+        res.status(200).json({
+            total: clients.count,
+            accounts: clients.rows
+        });
     } catch (err) {
-        res.status(400).json({message: err.message});
+        res.status(400).json({ message: err.message });
     }
 };
 
