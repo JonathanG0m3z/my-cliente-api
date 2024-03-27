@@ -3,6 +3,7 @@ const { Sale, Client, Account, Service } = require('../config/database');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 const { Op } = require('sequelize');
 const transporter = require('../config/mailer');
+const { template } = require('../mails/youtubeActivation/YoutubeTemplate.js');
 
 exports.addSale = async (req, res) => {
     try {
@@ -251,18 +252,65 @@ exports.renewSale = async (req, res) => {
 
 exports.sendEmailReminder = async (req, res) => {
     try {
-        const { userId } = req;
+        const fiveDaysDate = moment().add(5, 'days').format('YYYY-MM-DD');
+        const threeDaysDate = moment().add(3, 'days').format('YYYY-MM-DD')
+        const currentDate = moment().format('YYYY-MM-DD');
+
+        const defaultFields = {
+            include: [
+                {
+                    model: Client,
+                    attributes: ['email'],
+                },
+                {
+                    model: Account,
+                    attributes: ['email'],
+                    include: [
+                        {
+                            model: Service,
+                            attributes: ['name']
+                        }
+                    ]
+                }
+            ],
+            attributes: ['expiration']
+        }
+
+        const defaultWhere = { renewed: { [Op.not]: true } }
+
+        const fiveDaysSales = await Sale.findAll({
+            where: {
+                expiration: fiveDaysDate,
+                ...defaultWhere
+            },
+            ...defaultFields
+        });
+        const threeDaysSales = await Sale.findAll({
+            where: {
+                expiration: threeDaysDate,
+                ...defaultWhere
+            },
+            ...defaultFields
+        });
+        const currentDateSales = await Sale.findAll({
+            where: {
+                expiration: currentDate,
+                ...defaultWhere
+            },
+            ...defaultFields
+        });
         const info = await transporter.sendMail({
             from: '"Recordatorio MyCliente" <contacto.mycliente@gmail.com>', // sender address
             // to: "bar@example.com, baz@example.com", // list of receivers
             to: "jg350u@gmail.com",
-            subject: "!Mensaje importante!", // Subject line
+            subject: "Renovación de suscripción", // Subject line
             // text: "Hello world?", // plain text body
-            html: "<b>Te amo tanto como no puedes imaginar</b>", // html body
+            html: template(3), // html body
         });
         res.status(200).json({
             message: 'Correo enviado',
             info: info,
+            sales:  `${threeDaysSales}`
         });
     } catch (err) {
         res.status(400).json({ message: err.message });
