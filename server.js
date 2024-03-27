@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
+const cronJobs = require('./config/cronJobs')
+const transporter = require('./config/mailer')
 
 const app = express();
 
@@ -37,3 +39,9 @@ const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+transporter.verify()
+    .then(() => console.log('Listo para enviar correos'))
+    .catch((err) => console.log(err))
+
+cronJobs.initCronJobs();

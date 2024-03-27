@@ -9,6 +9,5 @@ router.get('/:id', verifyToken, saleController.getSaleById);
 router.post('/:id', verifyToken, saleController.updateSale);
 router.delete('/:id', verifyToken, saleController.deleteSale);
 router.post('/renew/:id', verifyToken, saleController.renewSale);
-router.post('/sendReminder/si', verifyToken, saleController.sendEmailReminder);
 
 module.exports = router;
