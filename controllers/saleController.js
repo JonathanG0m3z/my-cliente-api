@@ -3,7 +3,7 @@ const { Sale, Client, Account, Service } = require('../config/database');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 const { Op } = require('sequelize');
 const transporter = require('../config/mailer');
-const { template } = require('../mails/youtubeActivation/YoutubeTemplate.js');
+const { youtubeTemplate } = require('../mails/youtubeActivation/YoutubeTemplate.js');
 
 exports.addSale = async (req, res) => {
     try {
@@ -278,39 +278,30 @@ exports.sendEmailReminder = async (req, res) => {
 
         const defaultWhere = { renewed: { [Op.not]: true } }
 
-        const fiveDaysSales = await Sale.findAll({
+        const salesToRenew = await Sale.findAll({
             where: {
-                expiration: fiveDaysDate,
+                [Op.or]: [
+                    {expiration: fiveDaysDate},
+                    {expiration: threeDaysDate},
+                    {expiration: currentDate},
+                ],
+                '$account.service.name$': 'Activación youtube',
                 ...defaultWhere
             },
             ...defaultFields
         });
-        const threeDaysSales = await Sale.findAll({
-            where: {
-                expiration: threeDaysDate,
-                ...defaultWhere
-            },
-            ...defaultFields
-        });
-        const currentDateSales = await Sale.findAll({
-            where: {
-                expiration: currentDate,
-                ...defaultWhere
-            },
-            ...defaultFields
-        });
-        const info = await transporter.sendMail({
-            from: '"Recordatorio MyCliente" <contacto.mycliente@gmail.com>', // sender address
-            // to: "bar@example.com, baz@example.com", // list of receivers
-            to: "jg350u@gmail.com",
-            subject: "Renovación de suscripción", // Subject line
-            // text: "Hello world?", // plain text body
-            html: template(3), // html body
-        });
+        for (const sale of salesToRenew) {
+            const daysToRenew = moment(sale.expiration).diff(moment().format('YYYY-MM-DD'), 'days');
+            await transporter.sendMail({
+                from: '"Recordatorio MyCliente" <contacto.mycliente@gmail.com>', // sender address
+                to: sale.client.email, // correo del cliente
+                subject: "Renovación de suscripción", // Asunto
+                html: youtubeTemplate(daysToRenew), // Cuerpo del correo HTML
+            });
+        }
         res.status(200).json({
             message: 'Correo enviado',
-            info: info,
-            sales:  `${threeDaysSales}`
+            sales:  salesToRenew
         });
     } catch (err) {
         res.status(400).json({ message: err.message });

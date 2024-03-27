@@ -51,7 +51,7 @@ exports.getAccounts = async (req, res) => {
                 where: {
                     accountId: account.dataValues.id,
                     renewed: { [Op.not]: true },
-                    expiration: { [Op.gte]: currentDate }
+                    expiration: { [Op.gte]: moment().format('YYYY-MM-DD') }
                 }
             });
             accountsList.push({

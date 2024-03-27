@@ -1,4 +1,4 @@
-exports.template = (daysLeft) => {
+exports.youtubeTemplate = (daysLeft) => {
     const titleByDays = {
         '5': `Te quedan ${daysLeft} días de youtube premium`,
         '3': `Te quedan ${daysLeft} días de youtube premium`,
@@ -248,9 +248,10 @@ exports.template = (daysLeft) => {
                                                                             bgcolor="#111111" role="presentation">
                                                                             <tbody>
                                                                                 <tr style="border-collapse:collapse">
-                                                                                    <td class="m_6466615539415717791es-m-txt-l"
-                                                                                        bgcolor="#333" align="left"
-                                                                                        style="padding:0;Margin:0;padding-left:30px;padding-right:30px;padding-top:35px">
+                                                                                    <td class="m_6466615539415717791es-m-txt-l m_6466615539415717791h-auto"
+                                                                                        bgcolor="#333" align="center"
+                                                                                        valign="top" height="66"
+                                                                                        style="padding:0;Margin:0;padding-top:30px;padding-left:30px;padding-right:30px">
                                                                                         <h2
                                                                                             style="Margin:0;line-height:36px;font-family:lato,'helvetica neue',helvetica,arial,sans-serif;font-size:24px;font-style:normal;font-weight:normal;color:#ffffff">
                                                                                             Mensaje automático. No responder</h2>
