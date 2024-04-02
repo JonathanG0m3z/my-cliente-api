@@ -132,7 +132,13 @@ exports.getAccountsCombo = async (req, res) => {
         const options = {
             where: whereCondition,
             offset: Number(offset),
-            limit: Number(limit)
+            limit: Number(limit),
+            include: [
+                {
+                    model: Service,
+                    attributes: ['name']
+                }
+            ],
         };
         const accounts = await Account.findAndCountAll(options);
         res.status(200).json({
@@ -141,7 +147,8 @@ exports.getAccountsCombo = async (req, res) => {
             currentPage: page,
             accounts: accounts.rows.map(account => ({
                 id: account.id,
-                email: account.email
+                email: account.email,
+                service_name: account.service?.name
             }))
         });
     } catch (err) {
