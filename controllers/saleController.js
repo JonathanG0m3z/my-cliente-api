@@ -1,7 +1,9 @@
 const moment = require('moment');
-const { Sale, Client, Account, Service } = require('../config/database');
+const { Sale, Client, Account, Service, ReminderLog } = require('../config/database');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 const { Op } = require('sequelize');
+const transporter = require('../config/mailer');
+const { youtubeTemplate } = require('../mails/youtubeActivation/YoutubeTemplate.js');
 
 exports.addSale = async (req, res) => {
     try {
@@ -243,6 +245,76 @@ exports.renewSale = async (req, res) => {
             message: 'Venta renovada exitosamente',
             renewedSale: newSale,
         });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+exports.sendEmailReminder = async (req, res) => {
+    try {
+        const sentToday = await ReminderLog.findOne({
+            where: {
+                sent_at: {
+                    [Op.between]: [
+                        moment().startOf('day').toDate(), // Comienza el día de hoy
+                        moment().endOf('day').toDate()    // Termina el día de hoy
+                    ]
+                }
+            }
+        });
+        if (sentToday) {
+            return res.status(400).json({ message: 'Ya se envió un recordatorio hoy.' });
+        } else {
+            const fiveDaysDate = moment().add(5, 'days').format('YYYY-MM-DD');
+            const threeDaysDate = moment().add(3, 'days').format('YYYY-MM-DD')
+            const currentDate = moment().format('YYYY-MM-DD');
+
+            const defaultFields = {
+                include: [
+                    {
+                        model: Client,
+                        attributes: ['email'],
+                    },
+                    {
+                        model: Account,
+                        attributes: ['email'],
+                        include: [
+                            {
+                                model: Service,
+                                attributes: ['name']
+                            }
+                        ]
+                    }
+                ],
+                attributes: ['expiration']
+            }
+
+            const defaultWhere = { renewed: { [Op.not]: true } }
+
+            const salesToRenew = await Sale.findAll({
+                where: {
+                    [Op.or]: [
+                        { expiration: fiveDaysDate },
+                        { expiration: threeDaysDate },
+                        { expiration: currentDate },
+                    ],
+                    '$account.service.name$': 'Activación youtube',
+                    ...defaultWhere
+                },
+                ...defaultFields
+            });
+            for (const sale of salesToRenew) {
+                const daysToRenew = moment(sale.expiration).diff(moment().format('YYYY-MM-DD'), 'days');
+                await transporter.sendMail({
+                    from: '"Recordatorio MyCliente" <contacto.mycliente@gmail.com>', // sender address
+                    to: sale.client.email, // correo del cliente
+                    subject: "Renovación de suscripción", // Asunto
+                    html: youtubeTemplate(daysToRenew), // Cuerpo del correo HTML
+                });
+            }
+            ReminderLog.create({ sent_at: moment().toISOString(), to: salesToRenew.map(sale => sale.client.email) });
+            res.status(200).json({ message: 'Recordatorio enviado exitosamente', a: salesToRenew.map(sale => sale.client.email) });
+        }
     } catch (err) {
         res.status(400).json({ message: err.message });
     }

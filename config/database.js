@@ -33,6 +33,7 @@ db.Client = require('../models/clientModel.js')(sequelize, Sequelize);
 db.Price = require('../models/priceModel.js')(sequelize, Sequelize);
 db.Sale = require('../models/saleModel.js')(sequelize, Sequelize);
 db.Service = require('../models/serviceModel.js')(sequelize, Sequelize);
+db.ReminderLog = require('../models/reminderLogModel.js')(sequelize, Sequelize);
 
 /******Relations between models*******/
 relations(sequelize.models);
