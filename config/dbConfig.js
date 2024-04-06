@@ -10,6 +10,10 @@ module.exports = {
     dialect: 'postgres',
     dialectOptions: {
         useUTC: false,
+        ssl: {
+            require: true,
+            rejectUnauthorized: false
+        }
     },
     pool: {
         max: 5,
