@@ -1,4 +1,4 @@
-const relations = ({user, account, client, price, sale, service}) => {
+const relations = ({user, account, client, price, sale, service, sharedBoard}) => {
     /*PRICE RELATIONS*/
     service.hasMany(price, { foreignKey: 'serviceId' });
     price.belongsTo(service, { foreignKey: 'serviceId' });
@@ -22,6 +22,11 @@ const relations = ({user, account, client, price, sale, service}) => {
     /*SERVICE RELATIONS*/
     user.hasMany(service, { foreignKey: 'userId' });
     service.belongsTo(user, { foreignKey: 'userId' });
+    /*SHARED BOARD RELATIONS*/
+    sharedBoard.hasMany(account, { foreignKey: 'sharedBoardId' });
+    account.belongsTo(sharedBoard, { foreignKey: 'sharedBoardId' });
+    user.hasMany(sharedBoard, { foreignKey: 'userId' });
+    sharedBoard.belongsTo(user, { foreignKey: 'userId' });
 };
 
 module.exports = relations;
