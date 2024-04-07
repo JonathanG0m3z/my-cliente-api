@@ -1,15 +1,17 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const cronJobs = require('./config/cronJobs')
 const transporter = require('./config/mailer')
+const { URL_FRONT } = process.env;
 
 const app = express();
 
 //cors configuration
 const corOptions = {
-    origin: 'http://localhost:3000'
+    origin: URL_FRONT
 }
 
 //middleware
@@ -31,6 +33,8 @@ const clientRouter = require('./routes/clientRouter');
 app.use('/clients', clientRouter);
 const saleRouter = require('./routes/saleRouter');
 app.use('/sales', saleRouter);
+const sharedBoardRouter = require('./routes/sharedBoardRouter');
+app.use('/sharedBoards', sharedBoardRouter);
 
 //port
 const PORT = process.env.PORT || 3001;

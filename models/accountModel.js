@@ -33,6 +33,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             allowNull: false,
           },
+          sharedBoardId: {
+            type: DataTypes.UUID,
+            allowNull: true,
+          },
     },
     {
       timestamps: false,
