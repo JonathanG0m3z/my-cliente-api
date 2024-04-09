@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.UUID,
             allowNull: true,
           },
+          extras: {
+            type: DataTypes.JSONB,
+            allowNull: true,
+          }
     },
     {
       timestamps: false,
