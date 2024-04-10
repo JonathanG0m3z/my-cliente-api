@@ -19,10 +19,9 @@ exports.addSharedBoard = async (req, res) => {
 
 exports.getSharedBoards = async (req, res) => {
     try {
-        const { userId } = req;
+        const { userId, email } = req;
         const { page = 1, limit = 10 } = req.query; // Establecer valores predeterminados para la página y el límite
         const offset = (page - 1) * limit; // Calcular el desplazamiento basado en la página y el límite
-        const user = await User.findByPk(userId);
         const boards = await SharedBoard.findAndCountAll({
             where: {
                 [Op.or]: [
@@ -30,7 +29,7 @@ exports.getSharedBoards = async (req, res) => {
                     {
                         users: {
                             [Op.contains]: {
-                                [`${user.email}`]: ['SELECT']
+                                [`${email}`]: ['VER']
                             }
                         }
                     }
@@ -73,14 +72,28 @@ exports.addAccount = async (req, res) => {
 
 exports.getAccounts = async (req, res) => {
     try {
+        const { email, userId } = req;
         const { sharedBoardId } = req.params;
-        const { page = 1, limit = 10 } = req.query; // Establecer valores predeterminados para la página y el límite
+        const doIHaveAccess = await SharedBoard.findOne({ where: { id: sharedBoardId,
+            [Op.or]: [
+            { userId: userId },
+            {
+                users: {
+                    [Op.contains]: {
+                        [`${email}`]: ['VER']
+                    }
+                }
+            }
+        ], } });
+        if (!doIHaveAccess) throw new Error('No tienes acceso a este tablero compartido');
+        const { page = 1, limit = 10, search = '' } = req.query; // Establecer valores predeterminados para la página y el límite
         const offset = (page - 1) * limit; // Calcular el desplazamiento basado en la página y el límite
 
         const accounts = await Account.findAndCountAll({
             where: {
                 sharedBoardId,
-                deleted_at: { [Op.is]: null }
+                deleted_at: { [Op.is]: null },
+                email: { [Op.iLike]: `%${search}%` }
             },
             include: [
                 {
@@ -95,7 +108,8 @@ exports.getAccounts = async (req, res) => {
 
         res.status(200).json({
             total: accounts.count,
-            accounts: accounts.rows.map(account => ({ ...account.dataValues, password: encryptValue(account.dataValues.password) }))
+            accounts: accounts.rows.map(account => ({ ...account.dataValues, password: encryptValue(account.dataValues.password) })),
+            permissions: userId === doIHaveAccess.userId ? 'admin' : doIHaveAccess.users?.[email]
         });
     } catch (err) {
         res.status(400).json({ message: err.message });

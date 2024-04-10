@@ -28,6 +28,7 @@ const verifyToken = (req, res, next) => {
     }
 
     req.userId = decodedToken.id;
+    req.email = decodedToken.email;
     next();
   } catch (err) {
     res.status(401).json({ message: 'Token de autenticación no válido' });
