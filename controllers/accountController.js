@@ -32,7 +32,8 @@ exports.getAccounts = async (req, res) => {
             where: {
                 userId,
                 expiration: { [Op.gte]: currentDate },
-                deleted_at: { [Op.is]: null }
+                deleted_at: { [Op.is]: null },
+                sharedBoardId: { [Op.is]: null }
             },
             include: [
                 {

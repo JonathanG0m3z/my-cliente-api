@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
           },
           permission: {
-            type: DataTypes.STRING,
+            type: DataTypes.JSONB,
             allowNull: true,
           }
     });
