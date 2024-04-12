@@ -39,7 +39,7 @@ db.SharedBoard = require('../models/sharedBoardModel.js')(sequelize, Sequelize);
 /******Relations between models*******/
 relations(sequelize.models);
 
-db.sequelize.sync({ force: true })
+db.sequelize.sync({ alter: true })
 .then(() => {
     console.log("ReSync done!");
 })
