@@ -4,7 +4,6 @@ const { User } = require('../config/database');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
-const { invalidateToken } = require('../middlewares/jwtMiddleware');
 
 exports.createUser = async (req, res) => {
     try {
@@ -33,7 +32,7 @@ exports.validateUser = async (req, res) => {
         const isPasswordMatch = await bcrypt.compare(decryptedPassword, userDB.password);
         if (isPasswordMatch) {
             const payload = { ...userDB.dataValues, password: null };
-            const decryptedToken = jwt.sign(payload, JWT_SECRET, { expiresIn: remember ? '1d' : '1m' });
+            const decryptedToken = jwt.sign(payload, JWT_SECRET, { expiresIn: remember ? '7d' : '1d' });
             const token = encryptValue(decryptedToken);
             res.status(200).json({ token });
         } else throw Error("Email o contraseña incorrectos");
@@ -58,7 +57,6 @@ exports.logOut = async (req, res) => {
         const encryptedToken = req.headers.authorization;
         if (!encryptedToken) throw Error("Error: information incomplete");
         const decryptedToken = decryptValue(encryptedToken);
-        invalidateToken(decryptedToken);
         res.status(200).json({ message: 'Sesión cerrada exitosamente.' });
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -75,7 +73,7 @@ exports.googleAuth = async (req, res) => {
         if (userDB === null) {
             const newUser = await User.create({ name, phone: null, email, password: hashedPassword, google_account: true, picture });
             const payload = { ...newUser.dataValues, password: null };
-            const decryptedToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+            const decryptedToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
             const token = encryptValue(decryptedToken);
             res.status(200).json({ token });
         } else {
@@ -83,7 +81,7 @@ exports.googleAuth = async (req, res) => {
             const isPasswordMatch = await bcrypt.compare(decryptedPassword, userDB.password);
             if (isPasswordMatch) {
                 const payload = { ...userDB.dataValues, password: null };
-                const decryptedToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '1d' });
+                const decryptedToken = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
                 const token = encryptValue(decryptedToken);
                 res.status(200).json({ token });
             } else {

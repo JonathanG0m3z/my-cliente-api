@@ -122,7 +122,8 @@ exports.getAccountsCombo = async (req, res) => {
             expiration: {
                 [Op.gte]: moment().subtract(3, 'days')
             },
-            deleted_at: { [Op.is]: null }
+            deleted_at: { [Op.is]: null },
+            sharedBoardId: { [Op.is]: null }
         };
         if (search) {
             whereCondition.email = {
