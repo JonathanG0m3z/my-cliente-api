@@ -75,34 +75,62 @@ exports.getAccounts = async (req, res) => {
     try {
         const { email, userId } = req;
         const { sharedBoardId } = req.params;
-        const doIHaveAccess = await SharedBoard.findOne({ where: { id: sharedBoardId,
-            [Op.or]: [
-            { userId: userId },
-            {
-                users: {
-                    [Op.contains]: {
-                        [`${email}`]: ['VER']
+        const doIHaveAccess = await SharedBoard.findOne({
+            where: {
+                id: sharedBoardId,
+                [Op.or]: [
+                    { userId: userId },
+                    {
+                        users: {
+                            [Op.contains]: {
+                                [`${email}`]: ['VER']
+                            }
+                        }
                     }
-                }
+                ],
             }
-        ], } });
+        });
         if (!doIHaveAccess) throw new Error('No tienes acceso a este tablero compartido');
-        const { page = 1, limit = 10, search = '' } = req.query; // Establecer valores predeterminados para la página y el límite
-        const offset = (page - 1) * limit; // Calcular el desplazamiento basado en la página y el límite
+        const { page = 1, limit = 10, search = '', is_deleted, end_date, begin_date, order } = req.query;
+        const offset = (page - 1) * limit;
+
+        let whereClause = {
+            sharedBoardId,
+            [Op.or]: [
+                { email: { [Op.iLike]: `%${search}%` } },
+                { password: { [Op.iLike]: `%${search}%` } }
+            ]
+        };
+
+        if (is_deleted === 'true') {
+            whereClause.deleted_at = { [Op.not]: null };
+        } else if (is_deleted === 'false') {
+            whereClause.deleted_at = null;
+        }
+
+        if (end_date && begin_date) {
+            whereClause.expiration = {
+                [Op.between]: [begin_date, end_date]
+            };
+        } else if (end_date) {
+            whereClause.expiration = {
+                [Op.lte]: end_date
+            };
+        } else if (begin_date) {
+            whereClause.expiration = {
+                [Op.gte]: begin_date
+            };
+        }
 
         const accounts = await Account.findAndCountAll({
-            where: {
-                sharedBoardId,
-                deleted_at: { [Op.is]: null },
-                email: { [Op.iLike]: `%${search}%` }
-            },
+            where: whereClause,
             include: [
                 {
                     model: Service,
                     attributes: ['name']
                 }
             ],
-            order: [['expiration', 'ASC']],
+            order: [...(order === '' || order === undefined) ? [] : [order.split(' ')]],
             limit: parseInt(limit),
             offset: parseInt(offset)
         });
