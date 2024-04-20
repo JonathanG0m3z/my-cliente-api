@@ -6,6 +6,7 @@ exports.addService = async (req, res) => {
         const {userId} = req;
         const {name} = req.body;
         if(!name || !userId) throw Error("Complete la información por favor");
+        if(name === 'Activación youtube') throw Error("Este nombre se encuentra protegido, usa otro");
         const newService = await Service.create({name, userId});
         res.status(200).json(newService);
     } catch (err) {
@@ -81,6 +82,7 @@ exports.updateService = async (req, res) => {
         const {id} = req.params;
         const {name} = req.body;
         if(!name || !id) throw Error("Complete la información por favor");
+        if(name === 'Activación youtube') throw Error("Este nombre se encuentra protegido, usa otro");
         const isValid = await Service.findByPk(id);
         if(!isValid) throw Error("El servicio no existe");
         const service = await Service.update({name}, { where: { id, userId }});
