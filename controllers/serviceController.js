@@ -51,7 +51,7 @@ exports.getServicesCombo = async (req, res) => {
         };
         if (search) {
             whereCondition.name = {
-                [Op.like]: `%${search}%`
+                [Op.iLike]: `%${search}%`
             };
         }
         const offset = (page - 1) * limit;

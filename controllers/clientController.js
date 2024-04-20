@@ -96,9 +96,9 @@ exports.getClientsCombobox = async (req, res) => {
         };
         if (search) {
             whereCondition[Op.or] = [
-                { name: { [Op.like]: `%${search}%` } },
-                { phone: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } },
+                { name: { [Op.iLike]: `%${search}%` } },
+                { phone: { [Op.iLike]: `%${search}%` } },
+                { email: { [Op.iLike]: `%${search}%` } },
             ];
         }
         const offset = (page - 1) * limit;

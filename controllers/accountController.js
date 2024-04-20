@@ -127,7 +127,7 @@ exports.getAccountsCombo = async (req, res) => {
         };
         if (search) {
             whereCondition.email = {
-                [Op.like]: `%${search}%`
+                [Op.iLike]: `%${search}%`
             };
         }
         const offset = (page - 1) * limit;

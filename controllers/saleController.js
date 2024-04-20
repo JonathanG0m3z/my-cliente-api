@@ -1,7 +1,7 @@
 const moment = require('moment');
 const { Sale, Client, Account, Service, ReminderLog } = require('../config/database');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const transporter = require('../config/mailer');
 const { youtubeTemplate } = require('../mails/youtubeActivation/YoutubeTemplate.js');
 
@@ -70,14 +70,22 @@ exports.getSales = async (req, res) => {
     try {
         const { userId } = req;
         const currentDate = moment().subtract(3, 'days').format('YYYY-MM-DD'); // Obtener la fecha actual
-        const { page = 1, limit = 10 } = req.query; // Establecer valores predeterminados para la página y el límite
+        const { page = 1, limit = 10, search = '' } = req.query; // Establecer valores predeterminados para la página y el límite
         const offset = (page - 1) * limit; // Calcular el desplazamiento basado en la página y el límite
 
         const sales = await Sale.findAndCountAll({
             where: {
                 userId,
                 expiration: { [Op.gte]: currentDate },
-                renewed: { [Op.not]: true }
+                renewed: { [Op.not]: true },
+                [Op.or]: [
+                    { '$client.name$': { [Op.iLike]: `%${search}%` } },
+                    { '$client.email$': { [Op.iLike]: `%${search}%` } },
+                    { '$client.phone$': { [Op.iLike]: `%${search}%` } },
+                    { '$account.email$': { [Op.iLike]: `%${search}%` } },
+                    { '$account.password$': { [Op.iLike]: `%${search}%` } },
+                    { '$account.service.name$': { [Op.iLike]: `%${search}%` } }
+                ]
             },
             include: [
                 {
