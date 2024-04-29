@@ -8,6 +8,7 @@ router.post('/', verifyToken, sharedBoardController.addSharedBoard);
 router.post('/accounts', verifyToken, sharedBoardController.addAccount);
 router.post('/accounts/:id', verifyToken, sharedBoardController.updateAccount);
 router.delete('/accounts/:id', verifyToken, sharedBoardController.deleteAccount);
+router.put('/accounts/:id', verifyToken, sharedBoardController.reactivateAccount);
 router.get('/accounts/:sharedBoardId', verifyToken, sharedBoardController.getAccounts);
 
 module.exports = router;

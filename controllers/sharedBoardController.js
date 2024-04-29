@@ -172,3 +172,13 @@ exports.deleteAccount = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.reactivateAccount = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const account = await Account.update({ deleted_at: null }, { where: { id } });
+        res.status(200).json({ message: "Cuenta reactivada correctamente" });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
