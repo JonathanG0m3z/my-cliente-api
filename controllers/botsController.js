@@ -19,6 +19,7 @@ exports.createLattvAccount = async (req, res) => {
             serviceId: '4738f953-da82-4a15-aa52-c3cffd1e26d9',
             sharedBoardId: '2243e6ec-eb5b-456a-931a-9de58fda5af8',
             userId,
+            createdInStore: true
         });
         const request = await fetch(`${URL_BOTS}/lattv`, {
             method: 'POST',
