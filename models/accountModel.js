@@ -21,6 +21,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
           },
+          status: {
+            type: DataTypes.STRING,
+            allowNull: true,
+          },
+          createdInStore: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+          },
           deleted_at: {
             type: DataTypes.DATE,
             allowNull: true,

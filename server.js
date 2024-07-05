@@ -35,6 +35,8 @@ const saleRouter = require('./routes/saleRouter');
 app.use('/sales', saleRouter);
 const sharedBoardRouter = require('./routes/sharedBoardRouter');
 app.use('/sharedBoards', sharedBoardRouter);
+const botsRouter = require('./routes/botsRouter');
+app.use('/bots', botsRouter);
 
 //port
 const PORT = process.env.PORT || 3001;

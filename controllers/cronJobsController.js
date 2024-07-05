@@ -1,5 +1,5 @@
 const moment = require('moment');
-const { Sale, Client, Account, Service } = require('../config/database');
+const { Sale, Client, Account, Service, ReminderLog } = require('../config/database');
 const { Op } = require('sequelize');
 const transporter = require('../config/mailer');
 const { youtubeTemplate } = require('../mails/youtubeActivation/YoutubeTemplate.js');
@@ -53,6 +53,7 @@ exports.sendEmailReminder = async () => {
                 html: youtubeTemplate(daysToRenew), // Cuerpo del correo HTML
             });
         }
+        ReminderLog.create({ sent_at: moment().toISOString(), to: salesToRenew.map(sale => sale.client.email) });
         return
     } catch (err) {
         throw new Error(err);
