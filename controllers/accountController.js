@@ -175,3 +175,28 @@ exports.renewAccount = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.deleteSharedBoardIdea = async (req, res) => {
+    try {
+        const account = await Account.update(
+            {
+                sharedBoardId: null
+            },
+            {
+                where: {
+                    sharedBoardId: { [Op.not]: null }
+                },
+            },
+        );
+        if (!account) throw new Error("La cuenta no fue encontrada");
+        await Account.update({
+            password: decryptValue(password),
+            expiration: expiration
+        }, { where: { id: id } });
+        res.status(200).json({
+            message: 'Cuenta renovada exitosamente'
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
