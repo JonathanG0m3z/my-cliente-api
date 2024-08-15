@@ -1,5 +1,4 @@
-const { Account, Service, Sale } = require('../config/database');
-const { Op, where } = require('sequelize');
+const { Account } = require('../config/database');
 const moment = require('moment');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 
@@ -26,7 +25,7 @@ exports.createIptvPremiunAccount = async (req, res) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({...req.body, password: pass})
+            body: JSON.stringify({ ...req.body, password: pass })
         })
         const response = await request.json()
         if (request.ok) {
@@ -66,7 +65,7 @@ exports.createLattvAccount = async (req, res) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({...req.body, password: pass})
+            body: JSON.stringify({ ...req.body, password: pass })
         })
         const response = await request.json()
         if (request.ok) {
@@ -83,4 +82,38 @@ exports.createLattvAccount = async (req, res) => {
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
+};
+
+exports.createIptvPremiunWithoutEndPoint = async (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { username, password, months, userId } = data;
+            const request = await fetch(`${URL_BOTS}/iptvPremiun`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                    months,
+                    userId
+                })
+            })
+            const response = await request.json()
+            if (request.ok) {
+                await Account.update({
+                    status: "ACTIVA",
+                }, { where: { id: data?.account?.id } });
+                return resolve();
+            } else {
+                await Account.update({
+                    status: "ERROR",
+                }, { where: { id: data?.account?.id } });
+                throw new Error(response.message)
+            }
+        } catch (err) {
+            reject();
+        }
+    })
 };

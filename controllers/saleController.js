@@ -1,9 +1,7 @@
 const moment = require('moment');
-const { Sale, Client, Account, Service, ReminderLog } = require('../config/database');
+const { Sale, Client, Account, Service } = require('../config/database');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
-const { Op, where } = require('sequelize');
-const transporter = require('../config/mailer');
-const { youtubeTemplate } = require('../mails/youtubeActivation/YoutubeTemplate.js');
+const { Op } = require('sequelize');
 
 exports.addSale = async (req, res) => {
     try {

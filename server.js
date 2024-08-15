@@ -37,6 +37,8 @@ const sharedBoardRouter = require('./routes/sharedBoardRouter');
 app.use('/sharedBoards', sharedBoardRouter);
 const botsRouter = require('./routes/botsRouter');
 app.use('/bots', botsRouter);
+const binanceRouter = require('./routes/binanceRouter');
+app.use('/binance', binanceRouter);
 
 //port
 const PORT = process.env.PORT || 3001;

@@ -35,6 +35,7 @@ db.Sale = require('../models/saleModel.js')(sequelize, Sequelize);
 db.Service = require('../models/serviceModel.js')(sequelize, Sequelize);
 db.ReminderLog = require('../models/reminderLogModel.js')(sequelize, Sequelize);
 db.SharedBoard = require('../models/sharedBoardModel.js')(sequelize, Sequelize);
+db.Order = require('../models/orderModel.js')(sequelize, Sequelize);
 
 /******Relations between models*******/
 relations(sequelize.models);
