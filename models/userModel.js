@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
           permission: {
             type: DataTypes.JSONB,
             allowNull: true,
+          },
+          balance: {
+            type: DataTypes.FLOAT,
+            allowNull: true,
           }
     });
     return User;

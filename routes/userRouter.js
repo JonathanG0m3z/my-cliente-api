@@ -8,6 +8,8 @@ router.post('/', userController.createUser);
 router.post('/validate', userController.validateUser);
 router.get('/logOut', verifyToken, userController.logOut);
 router.post('/signin', userController.googleAuth);
+router.get('/getBalance', verifyToken, userController.getBalanceById);
+router.delete('/resetBalance', verifyToken, userController.resetBalance);
 
 
 module.exports = router;

@@ -77,7 +77,7 @@ exports.googleAuth = async (req, res) => {
             const token = encryptValue(decryptedToken);
             res.status(200).json({ token });
         } else {
-            if (userDB.google_account === false) throw Error('Error: Esta cuenta fue creada manualmente en la plataforma y no usando Google');
+            if (userDB.google_account === false) throw Error('Esta cuenta fue creada manualmente en la plataforma y no usando Google');
             const isPasswordMatch = await bcrypt.compare(decryptedPassword, userDB.password);
             if (isPasswordMatch) {
                 const payload = { ...userDB.dataValues, password: null };
@@ -88,6 +88,30 @@ exports.googleAuth = async (req, res) => {
                 res.status(400).json({ message: "Hubo un error de comparación con la cuenta existente" });
             }
         }
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+exports.getBalanceById = async (req, res) => {
+    try {
+        const { userId } = req;
+        if (!userId) throw Error("Information incompleta");
+        const userDB = await User.findByPk(userId);
+        res.status(200).json({ balance: userDB.balance ?? 0 });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+exports.resetBalance = async (req, res) => {
+    try {
+        const { userId } = req;
+        if(userId !== 'd7887bff-24d2-4e26-b3aa-c2bd18323003') throw Error("No tienes permisos para realizar esta operación");
+        await User.update({
+            balance: 0
+        }, { where: { id: '642b717f-3557-4eaa-8402-420b054f0a94' } });
+        res.status(200).json({ message: "Saldo reiniciado con exito" });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }

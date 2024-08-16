@@ -1,9 +1,17 @@
-const { Account, Service, Sale } = require('../config/database');
+const { Account, User } = require('../config/database');
 const { Op, where } = require('sequelize');
 const moment = require('moment');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 
 const { URL_BOTS } = process.env;
+
+const iptvPremiunPriceByMonths = {
+    1: 2,
+    2: 4,
+    3: 4.5,
+    6: 8,
+    12: 15
+}
 
 exports.createIptvPremiunAccount = async (req, res) => {
     try {
@@ -30,6 +38,10 @@ exports.createIptvPremiunAccount = async (req, res) => {
         })
         const response = await request.json()
         if (request.ok) {
+            const userData = await User.findByPk(userId);
+            await User.update({
+                balance: userData.balance - iptvPremiunPriceByMonths[months]
+            }, { where: { id: userId } });
             await Account.update({
                 status: "ACTIVA",
             }, { where: { id: newAccount.id } });
