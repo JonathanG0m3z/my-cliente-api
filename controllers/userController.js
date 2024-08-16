@@ -116,3 +116,16 @@ exports.resetBalance = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.getAdminBalance = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { id } = req.params;
+        if (!userId || !id) throw Error("Informacion incompleta");
+        if(userId !== 'd7887bff-24d2-4e26-b3aa-c2bd18323003') throw Error("No tienes permisos para realizar esta operación");
+        const userDB = await User.findByPk(id);
+        res.status(200).json({ balance: userDB.balance ?? 0 });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};

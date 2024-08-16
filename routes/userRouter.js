@@ -9,6 +9,7 @@ router.post('/validate', userController.validateUser);
 router.get('/logOut', verifyToken, userController.logOut);
 router.post('/signin', userController.googleAuth);
 router.get('/getBalance', verifyToken, userController.getBalanceById);
+router.get('/getAdminBalance/:id', verifyToken, userController.getAdminBalance);
 router.delete('/resetBalance', verifyToken, userController.resetBalance);
 
 
