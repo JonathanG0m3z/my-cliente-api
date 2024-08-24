@@ -57,6 +57,43 @@ exports.createIptvPremiunAccount = async (req, res) => {
     }
 };
 
+exports.renewIptvPremiunAccount = async (req, res) => {
+    try {
+        const { userId } = req;
+        const { months, account_id, demo } = req.body;
+        const accountId = decryptValue(account_id)
+        await Account.update({
+            status: "RENOVANDO",
+        }, { where: { id: accountId } })
+        const account = await Account.findByPk(accountId);
+        const request = await fetch(`${URL_BOTS}/iptvPremiun/renew`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: account?.email, months, demo })
+        })
+        const response = await request.json()
+        if (request.ok) {
+            const userData = await User.findByPk(userId);
+            await User.update({
+                balance: userData.balance - iptvPremiunPriceByMonths[months]
+            }, { where: { id: userId } });
+            await Account.update({
+                status: "ACTIVA",
+            }, { where: { id: accountId } });
+            return res.status(200).json(response);
+        } else {
+            await Account.update({
+                status: "ERROR",
+            }, { where: { id: accountId } });
+            throw new Error(response.message)
+        }
+    } catch (err) {
+        res.status(400).json({ message: "Algo salió mal" });
+    }
+};
+
 exports.createLattvAccount = async (req, res) => {
     try {
         const { userId } = req;

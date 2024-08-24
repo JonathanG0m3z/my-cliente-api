@@ -10,5 +10,6 @@ router.post('/accounts/:id', verifyToken, sharedBoardController.updateAccount);
 router.delete('/accounts/:id', verifyToken, sharedBoardController.deleteAccount);
 router.put('/accounts/:id', verifyToken, sharedBoardController.reactivateAccount);
 router.get('/accounts/:sharedBoardId', verifyToken, sharedBoardController.getAccounts);
+router.get('/renewIptvAccounts/:sharedBoardId', verifyToken, sharedBoardController.getAccountsToRenewIptv);
 
 module.exports = router;

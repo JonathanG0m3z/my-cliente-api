@@ -182,3 +182,60 @@ exports.reactivateAccount = async (req, res) => {
         res.status(400).json({ message: err.message });
     }
 };
+
+exports.getAccountsToRenewIptv = async (req, res) => {
+    try {
+        const { email, userId } = req;
+        const { sharedBoardId } = req.params;
+        const doIHaveAccess = await SharedBoard.findOne({
+            where: {
+                id: sharedBoardId,
+                [Op.or]: [
+                    { userId: userId },
+                    {
+                        users: {
+                            [Op.contains]: {
+                                [`${email}`]: ['VER']
+                            }
+                        }
+                    }
+                ],
+            }
+        });
+        if (!doIHaveAccess) throw new Error('No tienes acceso a este tablero compartido');
+        const { page = 1, limit = 10, search = '' } = req.query;
+        const offset = (page - 1) * limit;
+
+        let whereClause = {
+            sharedBoardId,
+            [Op.or]: [
+                { email: { [Op.iLike]: `%${search}%` } },
+                { password: { [Op.iLike]: `%${search}%` } }
+            ]
+        };
+        whereClause.deleted_at = null;
+
+        const accounts = await Account.findAndCountAll({
+            where: whereClause,
+            include: [
+                {
+                    model: Service,
+                    attributes: ['name'],
+                    where: {
+                        id: 'de24f168-4f18-4a1d-a437-192fa9477df5'
+                    }
+                }
+            ],
+            order: [['expiration', 'ASC']],
+            limit: parseInt(limit),
+            offset: parseInt(offset)
+        });
+
+        res.status(200).json({
+            total: accounts.count,
+            accounts: accounts.rows.map(account => ({ ...account.dataValues, password: encryptValue(account.dataValues.password) })),
+        });
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
