@@ -81,6 +81,7 @@ exports.renewIptvPremiunAccount = async (req, res) => {
             }, { where: { id: userId } });
             await Account.update({
                 status: "ACTIVA",
+                expiration: moment(account.expiration).add(months, 'months').format('YYYY-MM-DD')
             }, { where: { id: accountId } });
             return res.status(200).json(response);
         } else {
