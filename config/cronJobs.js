@@ -2,11 +2,11 @@ const cron = require('node-cron')
 const cronJobsController = require('../controllers/cronJobsController')
 
 function initCronJobs() {
-    cron.schedule('0 13 * * *', () => {
-        cronJobsController.sendEmailReminder()
-            .then(() => {console.log('Ejecutado')})
-            .catch((err) => console.log(err))
-    });
+    // cron.schedule('0 13 * * *', () => {
+    //     cronJobsController.sendEmailReminder()
+    //         .then(() => {console.log('Ejecutado')})
+    //         .catch((err) => console.log(err))
+    // });
 }
 
 module.exports = {
