@@ -3,7 +3,9 @@ const { Op, where } = require('sequelize');
 const moment = require('moment');
 const { decryptValue, encryptValue } = require('../utils/cryptoHooks');
 
+const { IPTV_DISCOUNT } = process.env;
 const { URL_BOTS } = process.env;
+const discount = Number(IPTV_DISCOUNT ?? 0);
 
 const iptvPremiunPriceByMonths = {
     1: 2,
@@ -39,8 +41,9 @@ exports.createIptvPremiunAccount = async (req, res) => {
         const response = await request.json()
         if (request.ok) {
             const userData = await User.findByPk(userId);
+            const price = iptvPremiunPriceByMonths[months]
             await User.update({
-                balance: userData.balance - iptvPremiunPriceByMonths[months]
+                balance: userData.balance - (price - (price * discount / 100))
             }, { where: { id: userId } });
             await Account.update({
                 status: "ACTIVA",
@@ -76,8 +79,9 @@ exports.renewIptvPremiunAccount = async (req, res) => {
         const response = await request.json()
         if (request.ok) {
             const userData = await User.findByPk(userId);
+            const price = iptvPremiunPriceByMonths[months]
             await User.update({
-                balance: userData.balance - iptvPremiunPriceByMonths[months]
+                balance: userData.balance - (price - (price * discount / 100))
             }, { where: { id: userId } });
             await Account.update({
                 status: "ACTIVA",
