@@ -18,6 +18,11 @@ const iptvPremiunPriceByMonths = {
 exports.createIptvPremiunAccount = async (req, res) => {
     const { userId } = req;
     const { username, password, demo, months } = req.body;
+    const userData = await User.findByPk(userId);
+    const maxDebt = Number(userData.permission?.maxDebt ?? 0);
+    const price = iptvPremiunPriceByMonths[months]
+    const newBalance = userData.balance - (price - (price * discount / 100))
+    if(newBalance < maxDebt) res.status(400).json({ message: 'DEUDA MÁXIMA ALCANZADA' });
     const pass = decryptValue(password)
     const newAccount = await Account.create({
         email: username,
@@ -41,8 +46,6 @@ exports.createIptvPremiunAccount = async (req, res) => {
         const response = await request.json()
         if (request.ok) {
             if (!demo) {
-                const userData = await User.findByPk(userId);
-                const price = iptvPremiunPriceByMonths[months]
                 await User.update({
                     balance: userData.balance - (price - (price * discount / 100))
                 }, { where: { id: userId } });
@@ -68,6 +71,11 @@ exports.createIptvPremiunAccount = async (req, res) => {
 exports.renewIptvPremiunAccount = async (req, res) => {
         const { userId } = req;
         const { months, account_id, demo } = req.body;
+        const userData = await User.findByPk(userId);
+        const maxDebt = Number(userData.permission?.maxDebt ?? 0);
+        const price = iptvPremiunPriceByMonths[months]
+        const newBalance = userData.balance - (price - (price * discount / 100))
+        if(newBalance < maxDebt) res.status(400).json({ message: 'DEUDA MÁXIMA ALCANZADA' });
         const accountId = decryptValue(account_id)
     try {
         await Account.update({
@@ -84,8 +92,6 @@ exports.renewIptvPremiunAccount = async (req, res) => {
         const response = await request.json()
         if (request.ok) {
             if (!demo) {
-                const userData = await User.findByPk(userId);
-                const price = iptvPremiunPriceByMonths[months]
                 await User.update({
                     balance: userData.balance - (price - (price * discount / 100))
                 }, { where: { id: userId } });
