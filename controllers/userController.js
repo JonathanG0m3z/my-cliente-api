@@ -104,14 +104,17 @@ exports.getBalanceById = async (req, res) => {
     }
 };
 
-exports.resetBalance = async (req, res) => {
+exports.updateBalance = async (req, res) => {
     try {
         const { userId } = req;
+        const { amount, id } = req.body;
         if(userId !== 'd7887bff-24d2-4e26-b3aa-c2bd18323003') throw Error("No tienes permisos para realizar esta operación");
+        const userDB = await User.findByPk(id);
+        const newBalance = (userDB.balance ?? 0) + (amount ?? 0)
         await User.update({
-            balance: 0
-        }, { where: { id: '642b717f-3557-4eaa-8402-420b054f0a94' } });
-        res.status(200).json({ message: "Saldo reiniciado con exito" });
+            balance: newBalance
+        }, { where: { id } });
+        res.status(200).json({ message: "Saldo actualizado con exito" });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
