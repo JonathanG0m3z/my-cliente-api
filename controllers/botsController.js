@@ -22,7 +22,10 @@ exports.createIptvPremiunAccount = async (req, res) => {
     const maxDebt = Number(userData.permission?.maxDebt ?? 0);
     const price = iptvPremiunPriceByMonths[months]
     const newBalance = userData.balance - (price - (price * discount / 100))
-    if(newBalance < maxDebt) res.status(400).json({ message: 'DEUDA MÁXIMA ALCANZADA' });
+    if(newBalance < maxDebt) {
+        res.status(400).json({ message: 'DEUDA MÁXIMA ALCANZADA' });
+        return
+    }
     const pass = decryptValue(password)
     const newAccount = await Account.create({
         email: username,
@@ -75,7 +78,10 @@ exports.renewIptvPremiunAccount = async (req, res) => {
         const maxDebt = Number(userData.permission?.maxDebt ?? 0);
         const price = iptvPremiunPriceByMonths[months]
         const newBalance = userData.balance - (price - (price * discount / 100))
-        if(newBalance < maxDebt) res.status(400).json({ message: 'DEUDA MÁXIMA ALCANZADA' });
+        if(newBalance < maxDebt) {
+            res.status(400).json({ message: 'DEUDA MÁXIMA ALCANZADA' });
+            return
+        }
         const accountId = decryptValue(account_id)
     try {
         await Account.update({
